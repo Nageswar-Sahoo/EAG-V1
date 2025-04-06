@@ -40,6 +40,339 @@ Example query:
 ```python
 ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9)
 ```
+![assignment-4](https://github.com/user-attachments/assets/11bb5795-4469-4b59-aa98-f496657a7fe0)
+
+## LLM - LOGS : 
+
+(venv) nageswar.sahoo@MMDJ410V92KH3 asignment-4 % python3 talk2mcp-2.py
+Starting main execution...
+Establishing connection to MCP server...
+Connection established, creating session...
+Session created, initializing...
+Requesting tool list...
+[04/06/25 12:49:11] INFO     Processing request of type ListToolsRequest     server.py:534
+Successfully retrieved 22 tools
+Creating system prompt...
+Number of tools: 22
+Added description for tool: 1. add(a: integer, b: integer) - Add two numbers
+Added description for tool: 2. add_list(l: array) - Add all numbers in a list
+Added description for tool: 3. subtract(a: integer, b: integer) - Subtract two numbers
+Added description for tool: 4. multiply(a: integer, b: integer) - Multiply two numbers
+Added description for tool: 5. divide(a: integer, b: integer) - Divide two numbers
+Added description for tool: 6. power(a: integer, b: integer) - Power of two numbers
+Added description for tool: 7. sqrt(a: integer) - Square root of a number
+Added description for tool: 8. cbrt(a: integer) - Cube root of a number
+Added description for tool: 9. factorial(a: integer) - factorial of a number
+Added description for tool: 10. log(a: integer) - log of a number
+Added description for tool: 11. remainder(a: integer, b: integer) - remainder of two numbers divison
+Added description for tool: 12. sin(a: integer) - sin of a number
+Added description for tool: 13. cos(a: integer) - cos of a number
+Added description for tool: 14. tan(a: integer) - tan of a number
+Added description for tool: 15. mine(a: integer, b: integer) - special mining tool
+Added description for tool: 16. create_thumbnail(image_path: string) - Create a thumbnail from an image
+Added description for tool: 17. strings_to_chars_to_int(string: string) - Return the ASCII values of the characters in a word
+Added description for tool: 18. int_list_to_exponential_sum(int_list: array) - Return sum of exponentials of numbers in a list
+Added description for tool: 19. fibonacci_numbers(n: integer) - Return the first n Fibonacci Numbers
+Added description for tool: 20. draw_rectangle(x1: integer, y1: integer, x2: integer, y2: integer) - Draw a rectangle in Paint from (x1,y1) to (x2,y2)
+Added description for tool: 21. add_text_in_paint(text: string) - Add text in Paint
+Added description for tool: 22. open_paint() - Open Paintbrush application on macOS
+Successfully created tools description
+Created system prompt...
+Starting iteration loop...
+
+--- Iteration 1 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: add|15|5
+
+DEBUG: Raw function info:  add|15|5
+DEBUG: Split parts: ['add', '15', '5']
+DEBUG: Function name: add
+DEBUG: Raw parameters: ['15', '5']
+DEBUG: Found tool: add
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'addArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 15 to type integer
+DEBUG: Converting parameter b with value 5 to type integer
+DEBUG: Final arguments: {'a': 15, 'b': 5}
+DEBUG: Calling tool add
+[04/06/25 12:49:12] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='20', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['20']
+
+--- Iteration 2 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: multiply|20|3
+
+DEBUG: Raw function info:  multiply|20|3
+DEBUG: Split parts: ['multiply', '20', '3']
+DEBUG: Function name: multiply
+DEBUG: Raw parameters: ['20', '3']
+DEBUG: Found tool: multiply
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'multiplyArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 20 to type integer
+DEBUG: Converting parameter b with value 3 to type integer
+DEBUG: Final arguments: {'a': 20, 'b': 3}
+DEBUG: Calling tool multiply
+[04/06/25 12:49:13] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='60', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['60']
+
+--- Iteration 3 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: divide|18|2
+
+DEBUG: Raw function info:  divide|18|2
+DEBUG: Split parts: ['divide', '18', '2']
+DEBUG: Function name: divide
+DEBUG: Raw parameters: ['18', '2']
+DEBUG: Found tool: divide
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'divideArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 18 to type integer
+DEBUG: Converting parameter b with value 2 to type integer
+DEBUG: Final arguments: {'a': 18, 'b': 2}
+DEBUG: Calling tool divide
+[04/06/25 12:49:14] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='9.0', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['9.0']
+
+--- Iteration 4 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: subtract|60|9
+
+DEBUG: Raw function info:  subtract|60|9
+DEBUG: Split parts: ['subtract', '60', '9']
+DEBUG: Function name: subtract
+DEBUG: Raw parameters: ['60', '9']
+DEBUG: Found tool: subtract
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'subtractArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 60 to type integer
+DEBUG: Converting parameter b with value 9 to type integer
+DEBUG: Final arguments: {'a': 60, 'b': 9}
+DEBUG: Calling tool subtract
+                    INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='51', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['51']
+
+--- Iteration 5 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: remainder|27|4
+
+DEBUG: Raw function info:  remainder|27|4
+DEBUG: Split parts: ['remainder', '27', '4']
+DEBUG: Function name: remainder
+DEBUG: Raw parameters: ['27', '4']
+DEBUG: Found tool: remainder
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'remainderArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 27 to type integer
+DEBUG: Converting parameter b with value 4 to type integer
+DEBUG: Final arguments: {'a': 27, 'b': 4}
+DEBUG: Calling tool remainder
+[04/06/25 12:49:15] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='3', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['3']
+
+--- Iteration 6 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: add|51|3
+
+DEBUG: Raw function info:  add|51|3
+DEBUG: Split parts: ['add', '51', '3']
+DEBUG: Function name: add
+DEBUG: Raw parameters: ['51', '3']
+DEBUG: Found tool: add
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'addArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 51 to type integer
+DEBUG: Converting parameter b with value 3 to type integer
+DEBUG: Final arguments: {'a': 51, 'b': 3}
+DEBUG: Calling tool add
+[04/06/25 12:49:16] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='54', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['54']
+
+--- Iteration 7 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: power|2|3
+
+DEBUG: Raw function info:  power|2|3
+DEBUG: Split parts: ['power', '2', '3']
+DEBUG: Function name: power
+DEBUG: Raw parameters: ['2', '3']
+DEBUG: Found tool: power
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'powerArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 2 to type integer
+DEBUG: Converting parameter b with value 3 to type integer
+DEBUG: Final arguments: {'a': 2, 'b': 3}
+DEBUG: Calling tool power
+[04/06/25 12:49:17] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='8', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['8']
+
+--- Iteration 8 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: subtract|54|8
+
+DEBUG: Raw function info:  subtract|54|8
+DEBUG: Split parts: ['subtract', '54', '8']
+DEBUG: Function name: subtract
+DEBUG: Raw parameters: ['54', '8']
+DEBUG: Found tool: subtract
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'subtractArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 54 to type integer
+DEBUG: Converting parameter b with value 8 to type integer
+DEBUG: Final arguments: {'a': 54, 'b': 8}
+DEBUG: Calling tool subtract
+[04/06/25 12:49:18] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='46', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['46']
+
+--- Iteration 9 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: divide|100|9
+
+DEBUG: Raw function info:  divide|100|9
+DEBUG: Split parts: ['divide', '100', '9']
+DEBUG: Function name: divide
+DEBUG: Raw parameters: ['100', '9']
+DEBUG: Found tool: divide
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'divideArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 100 to type integer
+DEBUG: Converting parameter b with value 9 to type integer
+DEBUG: Final arguments: {'a': 100, 'b': 9}
+DEBUG: Calling tool divide
+                    INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='11.11111111111111', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['11.11111111111111']
+
+--- Iteration 10 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: add|46|11
+
+DEBUG: Raw function info:  add|46|11
+DEBUG: Split parts: ['add', '46', '11']
+DEBUG: Function name: add
+DEBUG: Raw parameters: ['46', '11']
+DEBUG: Found tool: add
+DEBUG: Tool schema: {'properties': {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}, 'required': ['a', 'b'], 'title': 'addArguments', 'type': 'object'}
+DEBUG: Schema properties: {'a': {'title': 'A', 'type': 'integer'}, 'b': {'title': 'B', 'type': 'integer'}}
+DEBUG: Converting parameter a with value 46 to type integer
+DEBUG: Converting parameter b with value 11 to type integer
+DEBUG: Final arguments: {'a': 46, 'b': 11}
+DEBUG: Calling tool add
+[04/06/25 12:49:19] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='57', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['57']
+
+--- Iteration 11 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: open_paint
+
+DEBUG: Raw function info:  open_paint
+DEBUG: Split parts: ['open_paint']
+DEBUG: Function name: open_paint
+DEBUG: Raw parameters: []
+DEBUG: Found tool: open_paint
+DEBUG: Tool schema: {'properties': {}, 'title': 'open_paintArguments', 'type': 'object'}
+DEBUG: Schema properties: {}
+DEBUG: Final arguments: {}
+DEBUG: Calling tool open_paint
+[04/06/25 12:49:20] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='{"content": [{"type": "text", "text": "Paintbrush opened successfully. Ready to draw.", "annotations": null}]}', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['{"content": [{"type": "text", "text": "Paintbrush opened successfully. Ready to draw.", "annotations": null}]}']
+
+--- Iteration 12 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: draw_rectangle|200|200|1000|1000
+
+DEBUG: Raw function info:  draw_rectangle|200|200|1000|1000
+DEBUG: Split parts: ['draw_rectangle', '200', '200', '1000', '1000']
+DEBUG: Function name: draw_rectangle
+DEBUG: Raw parameters: ['200', '200', '1000', '1000']
+DEBUG: Found tool: draw_rectangle
+DEBUG: Tool schema: {'properties': {'x1': {'title': 'X1', 'type': 'integer'}, 'y1': {'title': 'Y1', 'type': 'integer'}, 'x2': {'title': 'X2', 'type': 'integer'}, 'y2': {'title': 'Y2', 'type': 'integer'}}, 'required': ['x1', 'y1', 'x2', 'y2'], 'title': 'draw_rectangleArguments', 'type': 'object'}
+DEBUG: Schema properties: {'x1': {'title': 'X1', 'type': 'integer'}, 'y1': {'title': 'Y1', 'type': 'integer'}, 'x2': {'title': 'X2', 'type': 'integer'}, 'y2': {'title': 'Y2', 'type': 'integer'}}
+DEBUG: Converting parameter x1 with value 200 to type integer
+DEBUG: Converting parameter y1 with value 200 to type integer
+DEBUG: Converting parameter x2 with value 1000 to type integer
+DEBUG: Converting parameter y2 with value 1000 to type integer
+DEBUG: Final arguments: {'x1': 200, 'y1': 200, 'x2': 1000, 'y2': 1000}
+DEBUG: Calling tool draw_rectangle
+[04/06/25 12:49:30] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='{"content": [{"type": "text", "text": "Rectangle drawn from (200,200) to (1000,1000)", "annotations": null}]}', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['{"content": [{"type": "text", "text": "Rectangle drawn from (200,200) to (1000,1000)", "annotations": null}]}']
+
+--- Iteration 13 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FUNCTION_CALL: add_text_in_paint|57
+
+DEBUG: Raw function info:  add_text_in_paint|57
+DEBUG: Split parts: ['add_text_in_paint', '57']
+DEBUG: Function name: add_text_in_paint
+DEBUG: Raw parameters: ['57']
+DEBUG: Found tool: add_text_in_paint
+DEBUG: Tool schema: {'properties': {'text': {'title': 'Text', 'type': 'string'}}, 'required': ['text'], 'title': 'add_text_in_paintArguments', 'type': 'object'}
+DEBUG: Schema properties: {'text': {'title': 'Text', 'type': 'string'}}
+DEBUG: Converting parameter text with value 57 to type string
+DEBUG: Final arguments: {'text': '57'}
+DEBUG: Calling tool add_text_in_paint
+[04/06/25 12:49:34] INFO     Processing request of type CallToolRequest      server.py:534
+DEBUG: Raw result: meta=None content=[TextContent(type='text', text='{"content": [{"type": "text", "text": "Text:\'57\' added successfully", "annotations": null}]}', annotations=None)] isError=False
+DEBUG: Result has content attribute
+DEBUG: Final iteration result: ['{"content": [{"type": "text", "text": "Text:\'57\' added successfully", "annotations": null}]}']
+
+--- Iteration 14 ---
+Preparing to generate LLM response...
+Starting LLM generation...
+LLM generation completed
+LLM Response: FINAL_ANSWER: [57]
+
+=== Agent Execution Complete ===
+(venv) nageswar.sahoo@MMDJ410V92KH3 asignment-4 % 
 
 The result is both calculated and displayed visually in Paintbrush.
 
