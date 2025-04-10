@@ -9,16 +9,41 @@ from concurrent.futures import TimeoutError
 from functools import partial
 import pyautogui
 import logging
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Set to DEBUG to capture all logs
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('mcp_execution.log')
+        logging.FileHandler('mcp_execution.log', mode='w'),  # Overwrite existing file
+        logging.StreamHandler()  # Keep console output
     ]
 )
+
+# Create a custom logger for detailed execution logs
+execution_logger = logging.getLogger('execution')
+execution_logger.setLevel(logging.DEBUG)
+
+# Create a file handler for execution details
+execution_handler = logging.FileHandler('mcp_execution_details.log', mode='w')
+execution_handler.setLevel(logging.DEBUG)
+
+# Create a formatter for execution logs
+execution_formatter = logging.Formatter('''
+%(asctime)s - %(levelname)s
+%(message)s
+----------------------------------------
+''')
+execution_handler.setFormatter(execution_formatter)
+execution_logger.addHandler(execution_handler)
+
+def log_execution_details(category, details):
+    """Log detailed execution information to the execution log file"""
+    execution_logger.debug(f"""
+🔍 {category}
+{json.dumps(details, indent=2)}
+""")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -122,10 +147,81 @@ async def handle_function_call(session, tools, func_name, args):
         logging.error(f"Error in function call {func_name}: {e}")
         raise
 
+def verify_result(expression, result, expected=None):
+    """Verify if the result matches the expected value or is mathematically correct"""
+    try:
+        # If expected value is provided, compare directly
+        if expected is not None:
+            return abs(float(result) - float(expected)) < 1e-10
+        
+        # Otherwise, evaluate the expression and compare
+        computed = eval(expression)
+        return abs(float(result) - float(computed)) < 1e-10
+    except Exception as e:
+        logging.error(f"Error in verification: {e}")
+        return False
+
+def format_verification_result(expression, result, expected=None, is_correct=None):
+    """Format the verification result in a structured way"""
+    if is_correct is None:
+        is_correct = verify_result(expression, result, expected)
+    
+    verification = {
+        "type": "VERIFICATION",
+        "expression": expression,
+        "result": result,
+        "expected": expected,
+        "is_correct": is_correct,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    log_execution_details("Verification", verification)
+    return verification
+
+def format_llm_input_output(prompt, response_text, parsed_responses):
+    """Format LLM input and output for detailed logging"""
+    formatted = f"""
+📥 LLM Input:
+{prompt}
+
+📤 LLM Output:
+{response_text}
+
+🔍 Parsed Responses:
+{json.dumps(parsed_responses, indent=2)}
+"""
+    log_execution_details("LLM Interaction", {
+        "input": prompt,
+        "output": response_text,
+        "parsed_responses": parsed_responses
+    })
+    return formatted
+
+def format_tool_call_details(func_name, args, result):
+    """Format tool call details for logging"""
+    formatted = f"""
+🛠️ Tool Call Details:
+- Function: {func_name}
+- Arguments: {json.dumps(args, indent=2)}
+- Result: {result}
+"""
+    log_execution_details("Tool Call", {
+        "function": func_name,
+        "arguments": args,
+        "result": result
+    })
+    return formatted
+
 async def process_llm_response(session, tools, response_text):
     """Process the LLM response and execute appropriate actions"""
     logging.info("Processing LLM response")
     parsed_responses = parse_json_response(response_text)
+    
+    # Log detailed LLM response information
+    log_execution_details("LLM Response Processing", {
+        "raw_response": response_text,
+        "parsed_responses": parsed_responses
+    })
     
     for response in parsed_responses:
         response_type = response.get("type")
@@ -133,20 +229,73 @@ async def process_llm_response(session, tools, response_text):
         
         if response_type == "FUNCTION_CALL":
             try:
+                # Log tool call details
+                log_execution_details("Tool Call Initiation", {
+                    "function": response["name"],
+                    "arguments": response["args"],
+                    "status": "pending"
+                })
+                
                 result = await handle_function_call(session, tools, response["name"], response["args"])
+                
+                # Log tool call result
+                log_execution_details("Tool Call Completion", {
+                    "function": response["name"],
+                    "arguments": response["args"],
+                    "result": result,
+                    "status": "completed"
+                })
+                
+                # Add verification step for calculate operations
+                if response["name"] == "calculate":
+                    expression = response["args"].get("expression", "")
+                    verification = format_verification_result(expression, result)
+                    
+                    if not verification["is_correct"]:
+                        error_response = {
+                            "type": "ERROR",
+                            "message": f"Verification failed for expression: {expression}",
+                            "verification": verification
+                        }
+                        log_execution_details("Verification Error", error_response)
+                        return error_response
+                
                 return result
             except Exception as e:
                 error_msg = f"Error executing function: {str(e)}"
-                logging.error(error_msg)
+                log_execution_details("Function Error", {
+                    "error": str(e),
+                    "function": response["name"],
+                    "arguments": response["args"]
+                })
                 return error_msg
         elif response_type == "FINAL_ANSWER":
             final_answer = response.get("value")
-            logging.info(f"Received final answer: {final_answer}")
+            log_execution_details("Final Answer", {
+                "value": final_answer
+            })
             return final_answer
         elif response_type == "ERROR":
             error_msg = f"Error: {response.get('message')}"
-            logging.error(error_msg)
+            log_execution_details("Error Response", response)
             return error_msg
+        elif response_type == "VERIFICATION":
+            # Handle explicit verification requests
+            expression = response.get("expression")
+            result = response.get("result")
+            expected = response.get("expected")
+            
+            verification = format_verification_result(expression, result, expected)
+            
+            if not verification["is_correct"]:
+                error_response = {
+                    "type": "ERROR",
+                    "message": f"Verification failed for expression: {expression}",
+                    "verification": verification
+                }
+                log_execution_details("Verification Error", error_response)
+                return error_response
+            return verification
     
     logging.warning("No valid response type found in parsed responses")
     return None
@@ -241,6 +390,11 @@ async def main():
     global iteration, last_response, iteration_response
     reset_state()
     logging.info("Starting main execution...")
+    log_execution_details("Execution Start", {
+        "timestamp": datetime.now().isoformat(),
+        "iteration": iteration
+    })
+    
     try:
         server_params = StdioServerParameters(
             command="python",
@@ -285,9 +439,9 @@ async def main():
                 tools_description = "\n".join(tools_description)
                 logging.info("Tools description created successfully")
                 
-                # Create system prompt
+                # Create system prompt with mandatory verification
                 logging.info("Creating system prompt...")
-                system_prompt = f"""You are a step-by-step math agent. Solve math problems using the tools listed below. Think before each step. Use tools iteratively, verify results, and handle errors. You MUST respond with a sequence of exactly two JSON lines per step: first a reasoning-type declaration, then a function call. Final answers follow a fixed sequence.
+                system_prompt = f"""You are a step-by-step math agent. Solve math problems using the tools listed below. Think before each step. Use tools iteratively, verify results, and handle errors. You MUST respond with a sequence of exactly three JSON lines per step: first a reasoning-type declaration, then a function call, and finally a verification step.
 
 Available tools:
 {tools_description}
@@ -304,36 +458,45 @@ Every reasoning step must include:
 2. A corresponding tool call:
 {{"type": "FUNCTION_CALL", "name": "add", "args": {{"a": 5, "b": 3}}}}
 
+3. A mandatory verification step:
+{{"type": "VERIFICATION", "expression": "5 + 3", "result": 8, "expected": 8}}
+
 When the final answer is known, you must call the following functions **one at a time**, in this order:
 
 a. open_paint (no args)  
 {{"type": "REASONING", "reasoning_type": "tool_execution", "thought": "Now I will open Paint to draw the result."}}  
-{{"type": "FUNCTION_CALL", "name": "open_paint", "args": {{}}}}
+{{"type": "FUNCTION_CALL", "name": "open_paint", "args": {{}}}}  
+{{"type": "VERIFICATION", "expression": "open_paint()", "result": "success", "expected": "success"}}
 
 b. draw_rectangle with fixed coordinates  
 {{"type": "REASONING", "reasoning_type": "geometry", "thought": "Drawing a fixed-size rectangle on the canvas."}}  
-{{"type": "FUNCTION_CALL", "name": "draw_rectangle", "args": {{"x1": 200, "y1": 200, "x2": 1000, "y2": 1000}}}}
+{{"type": "FUNCTION_CALL", "name": "draw_rectangle", "args": {{"x1": 200, "y1": 200, "x2": 1000, "y2": 1000}}}}  
+{{"type": "VERIFICATION", "expression": "draw_rectangle(200,200,1000,1000)", "result": "success", "expected": "success"}}
 
 c. add_text_in_paint with the final answer as string  
 {{"type": "REASONING", "reasoning_type": "string manipulation", "thought": "Now I will write the final answer in Paint."}}  
-{{"type": "FUNCTION_CALL", "name": "add_text_in_paint", "args": {{"text": "final_answer"}}}}
+{{"type": "FUNCTION_CALL", "name": "add_text_in_paint", "args": {{"text": "final_answer"}}}}  
+{{"type": "VERIFICATION", "expression": "add_text_in_paint(final_answer)", "result": "success", "expected": "success"}}
 
 d. Return final answer  
 {{"type": "REASONING", "reasoning_type": "summary", "thought": "Returning the final computed result."}}  
-{{"type": "FINAL_ANSWER", "value": final_answer}}
+{{"type": "FINAL_ANSWER", "value": final_answer}}  
+{{"type": "VERIFICATION", "expression": "final_answer", "result": final_answer, "expected": final_answer}}
 
 ======================================
 📌 RULES
 ======================================
 
-- Every step must include two JSON lines: first a REASONING, then a FUNCTION_CALL.
+- Every step must include three JSON lines: REASONING, FUNCTION_CALL, and VERIFICATION.
 - Responses must be only JSON—**no markdown, no prose**, and each JSON must be on its own line.
 - Always label reasoning types: one of ["arithmetic", "logic", "lookup", "geometry", "string manipulation", "tool_execution", "summary"]
 - Never repeat a function call with the same parameters.
 - Handle all tool outputs and errors explicitly.
+- Verification is MANDATORY for every step.
 - If unsure or if an error occurs, respond with:
   {{"type": "REASONING", "reasoning_type": "error_handling", "thought": "There was a failure or ambiguity."}}
   {{"type": "ERROR", "message": "Describe the issue or ambiguity here."}}
+  {{"type": "VERIFICATION", "expression": "error", "result": "error", "expected": "error"}}
 """
 
                 original_query = """Find the result of ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9) """
@@ -344,6 +507,11 @@ d. Return final answer
                 computation_steps = []
                 
                 while iteration < max_iterations:
+                    log_execution_details("Iteration Start", {
+                        "iteration": iteration + 1,
+                        "timestamp": datetime.now().isoformat()
+                    })
+                    
                     logging.info(f"\n--- Starting Iteration {iteration + 1} ---")
                     
                     # Build the current query with context
@@ -445,13 +613,28 @@ Remember:
                         logging.error(f"Error in iteration {iteration + 1}: {e}")
                         break
                         
+                    log_execution_details("Iteration End", {
+                        "iteration": iteration + 1,
+                        "result": result,
+                        "timestamp": datetime.now().isoformat()
+                    })
+                    
                     iteration += 1
 
     except Exception as e:
+        log_execution_details("Execution Error", {
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+            "timestamp": datetime.now().isoformat()
+        })
         logging.error(f"Error in main execution: {e}")
         import traceback
         logging.error(traceback.format_exc())
     finally:
+        log_execution_details("Execution End", {
+            "timestamp": datetime.now().isoformat(),
+            "total_iterations": iteration
+        })
         logging.info("Resetting state...")
         reset_state()
 
