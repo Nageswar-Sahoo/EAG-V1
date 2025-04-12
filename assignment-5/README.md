@@ -112,6 +112,8 @@ LLM Score for Prompt :
 
 ## LLM - LOGS : 
 
+[View the script](./logs/)
+
 
 ## Note
 
