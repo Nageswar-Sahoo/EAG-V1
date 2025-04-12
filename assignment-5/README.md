@@ -112,7 +112,7 @@ LLM Score for Prompt :
 
 ## LLM - LOGS : 
 
-[View Logs](./assignment-5/llm_logs/mcp_execution_details.log)
+[View Logs](https://github.com/Nageswar-Sahoo/EAG-V1/blob/main/assignment-5/llm_logs/mcp_execution_details.log)
 
 
 ## Note
