@@ -112,7 +112,7 @@ LLM Score for Prompt :
 
 ## LLM - LOGS : 
 
-[View the script](./logs/)
+[View Logs](./assignment-5/llm_logs/mcp_execution_details.log)
 
 
 ## Note
