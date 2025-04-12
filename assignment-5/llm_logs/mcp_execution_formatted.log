@@ -1,0 +1,83 @@
+2025-04-10 19:13:35,350 - DEBUG - Using selector: KqueueSelector
+
+2025-04-10 19:13:35,351 - INFO - Resetting state variables
+
+2025-04-10 19:13:35,351 - INFO - Starting main execution...
+
+2025-04-10 19:13:35,351 - DEBUG - 
+🔍 Execution Start
+{
+  "timestamp": "2025-04-10T19:13:35.351141",
+  "iteration": 0
+}
+
+2025-04-10 19:13:35,357 - INFO - Initializing session...
+
+2025-04-10 19:13:35,695 - INFO - Fetching available tools...
+
+2025-04-10 19:13:35,699 - INFO - Successfully retrieved 23 tools
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 1. add(a: integer, b: integer) - Add two numbers
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 2. add_list(l: array) - Add all numbers in a list
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 3. subtract(a: integer, b: integer) - Subtract two numbers
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 4. multiply(a: integer, b: integer) - Multiply two numbers
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 5. divide(a: integer, b: integer) - Divide two numbers
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 6. power(a: integer, b: integer) - Power of two numbers
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 7. sqrt(a: integer) - Square root of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 8. cbrt(a: integer) - Cube root of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 9. factorial(a: integer) - factorial of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 10. log(a: integer) - log of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 11. remainder(a: integer, b: integer) - remainder of two numbers divison
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 12. floor_divide(a: integer, b: integer) - Performs floor division of two integers and returns the quotient.
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 13. sin(a: integer) - sin of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 14. cos(a: integer) - cos of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 15. tan(a: integer) - tan of a number
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 16. mine(a: integer, b: integer) - special mining tool
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 17. create_thumbnail(image_path: string) - Create a thumbnail from an image
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 18. strings_to_chars_to_int(string: string) - Return the ASCII values of the characters in a word
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 19. int_list_to_exponential_sum(int_list: array) - Return sum of exponentials of numbers in a list
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 20. fibonacci_numbers(n: integer) - Return the first n Fibonacci Numbers
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 21. draw_rectangle(x1: integer, y1: integer, x2: integer, y2: integer) - Draw a rectangle in Paint from (x1,y1) to (x2,y2)
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 22. add_text_in_paint(text: string) - Add text in Paint
+
+2025-04-10 19:13:35,699 - DEBUG - Processed tool: 23. open_paint() - Open Paintbrush application on macOS
+
+2025-04-10 19:13:35,699 - INFO - Tools description created successfully
+
+2025-04-10 19:13:35,699 - INFO - Creating system prompt...
+
+2025-04-10 19:13:35,699 - INFO - Starting execution with query: Find the result of ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9) 
+
+2025-04-10 19:13:35,699 - DEBUG - 
+🔍 Iteration Start
+{
+  "iteration": 1,
+  "timestamp": "2025-04-10T19:13:35.699530"
+}
+
+2025-04-10 19:13:35,699 - INFO - 
+--- Starting Iteration 1 ---
+
+2025-04-10 19:13:35,699 - INFO - 
+📝 Query to LLM: 
