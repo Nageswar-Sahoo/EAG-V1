@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import asyncio
 from concurrent.futures import TimeoutError
 import json
+from models import LLMResponse
 
 
 class PerceptionLayer:
@@ -37,8 +38,8 @@ class PerceptionLayer:
             self.logger.error(f"LLM error: {e}")
             raise
 
-    def parse_json_response(self, response_text: str) -> List[Dict[str, Any]]:
-        """Parse the LLM response into a list of JSON objects"""
+    def parse_json_response(self, response_text: str) -> List[LLMResponse]:
+        """Parse the LLM response into a list of Pydantic LLMResponse objects"""
         try:
             lines = [line.strip() for line in response_text.split('\n') if line.strip()]
             parsed_responses = []
@@ -46,8 +47,12 @@ class PerceptionLayer:
             for line in lines:
                 try:
                     parsed = json.loads(line)
-                    parsed_responses.append(parsed)
+                    response = LLMResponse(**parsed)
+                    parsed_responses.append(response)
                 except json.JSONDecodeError:
+                    continue
+                except Exception as e:
+                    self.logger.error(f"Error parsing response: {e}")
                     continue
             
             return parsed_responses

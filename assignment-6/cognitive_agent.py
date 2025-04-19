@@ -1,15 +1,17 @@
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Union
 from mcp import ClientSession, StdioServerParameters, types
 from mcp.client.stdio import stdio_client
+from mcp.types import TextContent
 
 from perception import PerceptionLayer
 from memory import MemoryLayer
 from decision_making import DecisionMakingLayer
 from action import ActionLayer
 from prompts import get_system_prompt, get_current_query
+from models import LLMResponse, MemoryState, ComputationStep
 
-class CognitiveAgent:
+class Agent:
     def __init__(self):
         self.perception = PerceptionLayer()
         self.memory = MemoryLayer()
@@ -73,34 +75,38 @@ class CognitiveAgent:
                     self.memory.update_current_expression(original_query)
                     remaining = original_query  # Initialize remaining with original query
                     
-                    while self.memory.iteration < self.max_iterations:
-                        logging.info(f"\nIteration {self.memory.iteration + 1}/{self.max_iterations}")
+                    while self.memory.state.iteration < self.max_iterations:
+                        logging.info(f"\nIteration {self.memory.state.iteration + 1}/{self.max_iterations}")
                         logging.info(f"Current expression: {remaining}")
                         
-                        if self.memory.iteration == 0:
-                            current_query = self.decision_making.generate_current_query(
-                                original_query=original_query,
-                                iteration=self.memory.iteration,
-                                memory=self.memory
-                            )
-                        else:
-                            current_query = self.decision_making.generate_current_query(
-                                original_query=original_query,
-                                iteration=self.memory.iteration,
-                                memory=self.memory
-                            )
+                        current_query = self.decision_making.generate_current_query(
+                            original_query=original_query,
+                            iteration=self.memory.state.iteration,
+                            memory=self.memory
+                        )
                         
-                        response_text = await self.perception.generate_with_timeout(f"{system_prompt}\n\nQuery: {current_query}")
-                        parsed_responses = self.perception.parse_json_response(response_text)
-                        logging.info(f"LLM Response: {parsed_responses}")
-                        
-                        result = await self.action.process_llm_response(session, tools, parsed_responses)
-                        logging.info(f"Function call result: {result}")
-                        
-                        if self.decision_making.process_llm_response(parsed_responses, result, self.memory):
-                            break
+                        try:
+                            response_text = await self.perception.generate_with_timeout(f"{system_prompt}\n\nQuery: {current_query}")
+                            parsed_responses = self.perception.parse_json_response(response_text)
+                            logging.info(f"LLM Response: {parsed_responses}")
+                            
+                            if not parsed_responses:
+                                logging.warning("No valid response from LLM")
+                                self.memory.increment_iteration()
+                                continue
                                 
-                        self.memory.increment_iteration()
+                            result = await self.action.process_llm_response(session, tools, parsed_responses)
+                            logging.info(f"Function call result: {result}")
+                            
+                            if self.decision_making.process_llm_response(parsed_responses, result, self.memory):
+                                break
+                                    
+                            self.memory.increment_iteration()
+                            
+                        except Exception as e:
+                            logging.error(f"Error in iteration {self.memory.state.iteration + 1}: {str(e)}")
+                            self.memory.increment_iteration()
+                            continue
                         
         except Exception as e:
             logging.error(f"Execution error: {e}")

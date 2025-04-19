@@ -10,6 +10,15 @@ import pyautogui
 import os
 import time
 import subprocess
+from models import (
+    AddInput, AddListInput, SubtractInput, MultiplyInput, DivideInput,
+    PowerInput, SqrtInput, CbrtInput, FactorialInput, LogInput,
+    RemainderInput, FloorDivideInput, SinInput, CosInput, TanInput,
+    MineInput, CreateThumbnailInput, StringsToCharsToIntInput,
+    IntListToExponentialSumInput, FibonacciNumbersInput,
+    DrawRectangleInput, AddTextInPaintInput
+)
+from typing import Union
 
 pyautogui.FAILSAFE = False
 
@@ -20,163 +29,172 @@ mcp = FastMCP("Calculator")
 
 #addition tool
 @mcp.tool()
-def add(a: int, b: int) -> int:
+def add(input: AddInput) -> Union[int, float]:
     """Add two numbers"""
     print("CALLED: add(a: int, b: int) -> int:")
-    return int(a + b)
+    return input.a + input.b
 
 @mcp.tool()
-def add_list(l: list) -> int:
+def add_list(input: AddListInput) -> Union[int, float]:
     """Add all numbers in a list"""
     print("CALLED: add(l: list) -> int:")
-    return sum(l)
+    return sum(input.l)
 
 # subtraction tool
 @mcp.tool()
-def subtract(a: int, b: int) -> int:
+def subtract(input: SubtractInput) -> Union[int, float]:
     """Subtract two numbers"""
     print("CALLED: subtract(a: int, b: int) -> int:")
-    return int(a - b)
+    return input.a - input.b
 
 # multiplication tool
 @mcp.tool()
-def multiply(a: int, b: int) -> int:
+def multiply(input: MultiplyInput) -> Union[int, float]:
     """Multiply two numbers"""
     print("CALLED: multiply(a: int, b: int) -> int:")
-    return int(a * b)
+    return input.a * input.b
 
 #  division tool
 @mcp.tool() 
-def divide(a: int, b: int) -> float:
+def divide(input: DivideInput) -> float:
     """Divide two numbers"""
     print("CALLED: divide(a: int, b: int) -> float:")
-    return float(a / b)
+    return float(input.a / input.b)
 
 # power tool
 @mcp.tool()
-def power(a: int, b: int) -> int:
+def power(input: PowerInput) -> Union[int, float]:
     """Power of two numbers"""
     print("CALLED: power(a: int, b: int) -> int:")
-    return int(a ** b)
+    return input.a ** input.b
 
 # square root tool
 @mcp.tool()
-def sqrt(a: int) -> float:
+def sqrt(input: SqrtInput) -> float:
     """Square root of a number"""
     print("CALLED: sqrt(a: int) -> float:")
-    return float(a ** 0.5)
+    return float(input.a ** 0.5)
 
 # cube root tool
 @mcp.tool()
-def cbrt(a: int) -> float:
+def cbrt(input: CbrtInput) -> float:
     """Cube root of a number"""
     print("CALLED: cbrt(a: int) -> float:")
-    return float(a ** (1/3))
+    return float(input.a ** (1/3))
 
 # factorial tool
 @mcp.tool()
-def factorial(a: int) -> int:
+def factorial(input: FactorialInput) -> int:
     """factorial of a number"""
     print("CALLED: factorial(a: int) -> int:")
-    return int(math.factorial(a))
+    return int(math.factorial(input.a))
 
 # log tool
 @mcp.tool()
-def log(a: int) -> float:
+def log(input: LogInput) -> float:
     """log of a number"""
     print("CALLED: log(a: int) -> float:")
-    return float(math.log(a))
+    return float(math.log(input.a))
 
 # remainder tool
 @mcp.tool()
-def remainder(a: int, b: int) -> int:
+def remainder(input: RemainderInput) -> Union[int, float]:
     """remainder of two numbers divison"""
     print("CALLED: remainder(a: int, b: int) -> int:")
-    return int(a % b)
+    return input.a % input.b
 
 @mcp.tool()
-def floor_divide(a: int, b: int) -> int:
+def floor_divide(input: FloorDivideInput) -> int:
     """Performs floor division of two integers and returns the quotient."""
-    print(f"CALLED: floor_divide({a}, {b})")
-    return a // b
+    print(f"CALLED: floor_divide({input.a}, {input.b})")
+    return int(input.a // input.b)
 
 # sin tool
 @mcp.tool()
-def sin(a: int) -> float:
+def sin(input: SinInput) -> float:
     """sin of a number"""
     print("CALLED: sin(a: int) -> float:")
-    return float(math.sin(a))
+    return float(math.sin(input.a))
 
 # cos tool
 @mcp.tool()
-def cos(a: int) -> float:
+def cos(input: CosInput) -> float:
     """cos of a number"""
     print("CALLED: cos(a: int) -> float:")
-    return float(math.cos(a))
+    return float(math.cos(input.a))
 
 # tan tool
 @mcp.tool()
-def tan(a: int) -> float:
+def tan(input: TanInput) -> float:
     """tan of a number"""
     print("CALLED: tan(a: int) -> float:")
-    return float(math.tan(a))
+    return float(math.tan(input.a))
 
 # mine tool
 @mcp.tool()
-def mine(a: int, b: int) -> int:
+def mine(input: MineInput) -> Union[int, float]:
     """special mining tool"""
     print("CALLED: mine(a: int, b: int) -> int:")
-    return int(a - b - b)
+    return input.a - input.b - input.b
 
 @mcp.tool()
-def create_thumbnail(image_path: str) -> Image:
+def create_thumbnail(input: CreateThumbnailInput) -> Image:
     """Create a thumbnail from an image"""
     print("CALLED: create_thumbnail(image_path: str) -> Image:")
-    img = PILImage.open(image_path)
-    img.thumbnail((100, 100))
-    return Image(data=img.tobytes(), format="png")
+    try:
+        img = PILImage.open(input.image_path)
+        img.thumbnail((100, 100))
+        return Image(data=img.tobytes(), format="png")
+    except Exception as e:
+        return {
+            "content": [
+                TextContent(
+                    type="text",
+                    text=f"Error creating thumbnail: {str(e)}"
+                )
+            ]
+        }
 
 @mcp.tool()
-def strings_to_chars_to_int(string: str) -> list[int]:
+def strings_to_chars_to_int(input: StringsToCharsToIntInput) -> list[int]:
     """Return the ASCII values of the characters in a word"""
     print("CALLED: strings_to_chars_to_int(string: str) -> list[int]:")
-    return [int(ord(char)) for char in string]
+    return [int(ord(char)) for char in input.string]
 
 @mcp.tool()
-def int_list_to_exponential_sum(int_list: list) -> float:
+def int_list_to_exponential_sum(input: IntListToExponentialSumInput) -> float:
     """Return sum of exponentials of numbers in a list"""
     print("CALLED: int_list_to_exponential_sum(int_list: list) -> float:")
-    return sum(math.exp(i) for i in int_list)
+    return sum(math.exp(i) for i in input.int_list)
 
 @mcp.tool()
-def fibonacci_numbers(n: int) -> list:
+def fibonacci_numbers(input: FibonacciNumbersInput) -> list:
     """Return the first n Fibonacci Numbers"""
     print("CALLED: fibonacci_numbers(n: int) -> list:")
-    if n <= 0:
+    if input.n <= 0:
         return []
     fib_sequence = [0, 1]
-    for _ in range(2, n):
+    for _ in range(2, input.n):
         fib_sequence.append(fib_sequence[-1] + fib_sequence[-2])
-    return fib_sequence[:n]
-
+    return fib_sequence[:input.n]
 
 @mcp.tool()
-async def draw_rectangle(x1: int, y1: int, x2: int, y2: int) -> dict:
+async def draw_rectangle(input: DrawRectangleInput) -> dict:
     """Draw a rectangle in Paint from (x1,y1) to (x2,y2)"""
     try:
-        print(f"Moving to start position ({x1}, {y1})")
-        pyautogui.moveTo(x1, y1, duration=0.7)
+        print(f"Moving to start position ({input.x1}, {input.y1})")
+        pyautogui.moveTo(input.x1, input.y1, duration=0.7)
 
         print("Click and drag to draw rectangle...")
         pyautogui.mouseDown()
-        pyautogui.dragTo(x2, y2, duration=0.9, button='left')
+        pyautogui.dragTo(input.x2, input.y2, duration=0.9, button='left')
         pyautogui.mouseUp()
 
         return {
             "content": [
                 TextContent(
                     type="text", 
-                    text=f"Rectangle drawn from ({x1},{y1}) to ({x2},{y2})"
+                    text=f"Rectangle drawn from ({input.x1},{input.y1}) to ({input.x2},{input.y2})"
                 )
             ]
         }
@@ -190,27 +208,23 @@ async def draw_rectangle(x1: int, y1: int, x2: int, y2: int) -> dict:
             ]
         }
 
-
 @mcp.tool()
-async def add_text_in_paint(text: str) -> dict:
+async def add_text_in_paint(input: AddTextInPaintInput) -> dict:
     """Add text in Paint"""
-   
     try:
-    
         time.sleep(10)
 
         # Click text tool (adjust coordinates for your Paint app on macOS)
         pyautogui.click(x=528, y=92)
         time.sleep(0.5)
   
-    
         # Click where to add text
         pyautogui.click(x=810, y=533)
         time.sleep(0.5)
         
         # Type the text
         pyautogui.write("Mathematical Query : ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9) \n\n Final Answer is : ")
-        pyautogui.write(text)
+        pyautogui.write(input.text)
         time.sleep(0.5)
         
         # Click to exit text mode
@@ -220,7 +234,7 @@ async def add_text_in_paint(text: str) -> dict:
             "content": [
                 TextContent(
                     type="text",
-                    text=f"Text:'{text}' added successfully"
+                    text=f"Text:'{input.text}' added successfully"
                 )
             ]
         }
@@ -234,53 +248,6 @@ async def add_text_in_paint(text: str) -> dict:
             ]
         }
 
-
-@mcp.tool()
-async def open_paint() -> dict:
-    """Open Paintbrush application on macOS"""
-    try:
-        # First check if Paintbrush is running and quit it
-        subprocess.call(["open", "-a", "Paintbrush"])
-        time.sleep(2)
-
-        # Step 2: Resize and bring Paintbrush window to front
-        script = '''
-        tell application "System Events"
-            tell application process "Paintbrush"
-                set frontmost to true
-                set position of window 1 to {200, 200}
-                set size of window 1 to {1000, 1000}
-            end tell
-        end tell
-        '''
-        subprocess.call(["osascript", "-e", script])
-        time.sleep(1)
-
-# Step 3: Handle canvas popup (based on your screenshot)
-        time.sleep(2)
-        pyautogui.write('1280', interval=0.1)  # Width
-        pyautogui.press('tab')               # Move to Height field
-        time.sleep(0.2)
-        pyautogui.press('enter')             # Press OK
-        time.sleep(2)
-        
-        return {
-            "content": [
-                TextContent(
-                    type="text",
-                    text="Paintbrush opened successfully. Ready to draw."
-                )
-            ]
-        }
-    except Exception as e:
-        return {
-            "content": [
-                TextContent(
-                    type="text",
-                    text=f"Error opening Paintbrush: {str(e)}"
-                )
-            ]
-        }  
 # Add a dynamic greeting resource
 @mcp.resource("greeting://{name}")
 def get_greeting(name: str) -> str:
@@ -288,20 +255,18 @@ def get_greeting(name: str) -> str:
     print("CALLED: get_greeting(name: str) -> str:")
     return f"Hello, {name}!"
 
-
 # DEFINE AVAILABLE PROMPTS
 @mcp.prompt()
 def review_code(code: str) -> str:
     return f"Please review this code:\n\n{code}"
-    print("CALLED: review_code(code: str) -> str:")
-
 
 @mcp.prompt()
 def debug_error(error: str) -> list[base.Message]:
     return [
-        base.UserMessage("I'm seeing this error:"),
-        base.UserMessage(error),
-        base.AssistantMessage("I'll help debug that. What have you tried so far?"),
+        base.Message(
+            role="system",
+            content=f"Debug this error:\n\n{error}"
+        )
     ]
 
 if __name__ == "__main__":

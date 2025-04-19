@@ -10,7 +10,7 @@ from memory import MemoryLayer
 from decision_making import DecisionMakingLayer
 from action import ActionLayer
 from prompts import get_system_prompt, get_current_query
-from cognitive_agent import CognitiveAgent
+from cognitive_agent import Agent
 
 # Configure logging
 logging.basicConfig(
@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 async def main():
-    agent = CognitiveAgent()
+    agent = Agent()
     original_query = """Find the result of ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9) """
     await agent.run(original_query)
 

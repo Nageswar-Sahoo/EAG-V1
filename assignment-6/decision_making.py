@@ -2,26 +2,57 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from prompts import get_current_query
+from models import LLMResponse, ComputationStep
 
 
 class DecisionMakingLayer:
     def __init__(self):
         self.logger = logging.getLogger('decision_making')
     
-    def get_next_operation(self, expression: str, completed_steps: List[Dict[str, Any]]) -> Tuple[Optional[str], Optional[str]]:
+    def get_next_operation(self, expression: str, completed_steps: List[ComputationStep]) -> Tuple[Optional[str], Optional[str]]:
         """Determine the next operation to perform based on the current state"""
+        # Define operations in order of precedence
         operations = [
             ('power', '**'),
             ('multiply', '*'),
             ('divide', '/'),
             ('remainder', '%'),
+            ('floor_divide', '//'),
             ('add', '+'),
             ('subtract', '-')
         ]
         
+        # First check for parentheses
+        if '(' in expression:
+            # Find the innermost parentheses
+            start = expression.rfind('(')
+            end = expression.find(')', start)
+            if start != -1 and end != -1:
+                inner_expr = expression[start+1:end]
+                # Check operations in the inner expression
+                for op_name, op_symbol in operations:
+                    if op_symbol in inner_expr:
+                        return op_name, op_symbol
+                # If no operations in inner expression, it's just a number
+                return None, None
+        
+        # If no parentheses, check operations in order of precedence
         for op_name, op_symbol in operations:
             if op_symbol in expression:
-                return op_name, op_symbol
+                # For power operation, make sure it's not part of a larger number
+                if op_symbol == '**':
+                    # Find all occurrences of **
+                    indices = [i for i, c in enumerate(expression) if expression[i:i+2] == '**']
+                    for idx in indices:
+                        # Check if it's a valid power operation (not part of a number)
+                        if idx > 0 and idx < len(expression)-2:
+                            prev_char = expression[idx-1]
+                            next_char = expression[idx+2]
+                            if prev_char.isdigit() and next_char.isdigit():
+                                return op_name, op_symbol
+                else:
+                    return op_name, op_symbol
+        
         return None, None
     
     def is_final_result(self, result: Any) -> bool:
@@ -77,9 +108,9 @@ class DecisionMakingLayer:
             )
         else:
             history = memory.get_computation_history()
-            remaining = memory.current_expression
+            remaining = memory.state.current_expression
             for step in history:
-                remaining = remaining.replace(step['operation'], str(step['result']))
+                remaining = remaining.replace(step.operation, str(step.result))
                 
             next_op, op_symbol = self.get_next_operation(remaining, history)
             self.logger.info(f"Next operation: {next_op} ({op_symbol})")
@@ -93,34 +124,103 @@ class DecisionMakingLayer:
                 op_symbol=op_symbol
             )
 
-    def process_llm_response(self, parsed_responses: List[Dict[str, Any]], result: Any, memory) -> bool:
+    def process_llm_response(self, parsed_responses: List[LLMResponse], result: Any, memory) -> bool:
         """Process the LLM response and update memory with computation steps"""
         if result is not None and len(parsed_responses) >= 2:
             reasoning = parsed_responses[0]
             function_call = parsed_responses[1]
             
-            if function_call.get("type") == "FUNCTION_CALL":
-                operation = f"{function_call['name']}({', '.join(f'{k}={v}' for k, v in function_call['args'].items())})"
-                self.logger.info(f"Executing operation: {operation}")
+            if function_call.type == "FUNCTION_CALL":
+                # Extract the operation and arguments
+                operation = function_call.name
+                args = function_call.args.get('input', {})
+                
+                # Format the operation string
+                if operation in ['add', 'subtract', 'multiply', 'divide', 'power', 'remainder', 'floor_divide']:
+                    op_symbol = {
+                        'add': '+',
+                        'subtract': '-',
+                        'multiply': '*',
+                        'divide': '/',
+                        'power': '**',
+                        'remainder': '%',
+                        'floor_divide': '//'
+                    }[operation]
+                    operation_str = f"{args['a']} {op_symbol} {args['b']}"
+                else:
+                    operation_str = f"{operation}({', '.join(f'{k}={v}' for k, v in args.items())})"
+                
+                self.logger.info(f"Executing operation: {operation_str}")
+                
+                # Extract the actual result value from the TextContent
+                if hasattr(result, 'content') and isinstance(result.content, list):
+                    for content in result.content:
+                        if hasattr(content, 'text'):
+                            result_value = content.text
+                            try:
+                                # Try to convert to float first, then int if possible
+                                result_value = float(result_value)
+                                if result_value.is_integer():
+                                    result_value = int(result_value)
+                            except (ValueError, TypeError):
+                                pass
+                            break
+                    else:
+                        result_value = result
+                else:
+                    result_value = result
+                
                 memory.add_computation_step({
-                    'operation': operation,
-                    'result': result,
-                    'iteration': memory.iteration + 1,
-                    'args': function_call['args']
+                    'operation': operation_str,
+                    'result': result_value,
+                    'args': args
                 })
             
-            memory.last_response = result
+            memory.state.last_response = result
             memory.add_iteration_response(str(result))
             
             try:
-                final_result = eval(memory.current_expression)
-                if len(memory.get_computation_history()) > 0 and all(
-                    str(step['result']) in memory.current_expression 
-                    for step in memory.get_computation_history()
-                ):
-                    self.logger.info(f"Final result computed: {final_result}")
-                    return True
+                # Build the expression by replacing operations with their results
+                expression = memory.state.current_expression
+                
+                # First, replace all completed operations with their results
+                for step in memory.get_computation_history():
+                    # Replace the operation with its result, handling parentheses
+                    operation = step.operation
+                    result = str(step.result)
+                    
+                    # Handle operations in parentheses
+                    if f"({operation})" in expression:
+                        expression = expression.replace(f"({operation})", result)
+                    else:
+                        expression = expression.replace(operation, result)
+                
+                # Clean up the expression
+                expression = ' '.join(expression.split())
+                expression = expression.replace('* *', '**')  # Fix power operator
+                
+                # Remove any non-numeric characters from the start/end
+                expression = expression.strip('Find the result of ')
+                
+                # Check if there are any remaining operations
+                remaining_ops = any(op in expression for op in ['+', '-', '*', '/', '**', '%', '//'])
+                
+                if not remaining_ops:
+                    # If no remaining operations, try to evaluate the final result
+                    try:
+                        final_result = eval(expression)
+                        self.logger.info(f"Final result computed: {final_result}")
+                        return True
+                    except Exception as e:
+                        self.logger.error(f"Error evaluating final result: {e}")
+                        return False
+                else:
+                    # If there are remaining operations, continue the iteration
+                    self.logger.info(f"Remaining expression: {expression}")
+                    return False
+                    
             except Exception as e:
-                self.logger.error(f"Error evaluating final result: {e}")
+                self.logger.error(f"Error evaluating expression: {e}")
+                return False
         
         return False 

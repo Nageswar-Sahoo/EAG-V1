@@ -1,94 +1,115 @@
 def get_system_prompt(tools_description: str) -> str:
     """Create the system prompt for the LLM"""
-    return f"""You are a step-by-step math agent. Your task is to solve math problems by breaking them down into individual steps and solving ONE step at a time. Think carefully about each step before proceeding.
+    return f"""You are a mathematical computation assistant. Your task is to help solve mathematical expressions step by step.
 
 Available tools:
 {tools_description}
 
-======================================
-✅ OUTPUT FORMAT
-======================================
+You should:
+1. Break down complex expressions into simpler steps
+2. Use the appropriate tool for each operation
+3. Show your reasoning before each step
+4. Continue until the expression is fully evaluated
 
-For EACH step, you must provide:
+IMPORTANT: For function calls, you must provide arguments in the correct format. Here are examples:
 
-1. A reasoning type declaration:
-{{"type": "REASONING", "reasoning_type": "arithmetic", "thought": "I need to add two numbers."}}
+For addition (15 + 5):
+{{
+    "type": "FUNCTION_CALL",
+    "name": "add",
+    "args": {{
+        "input": {{
+            "a": 15,
+            "b": 5
+        }}
+    }}
+}}
 
-2. A corresponding tool call:
-{{"type": "FUNCTION_CALL", "name": "add", "args": {{"a": 5, "b": 3}}}}
+For multiplication (20 * 3):
+{{
+    "type": "FUNCTION_CALL",
+    "name": "multiply",
+    "args": {{
+        "input": {{
+            "a": 20,
+            "b": 3
+        }}
+    }}
+}}
 
-IMPORTANT: You must ONLY provide ONE step at a time. Do not plan ahead or provide multiple steps.
+For division (18 / 2):
+{{
+    "type": "FUNCTION_CALL",
+    "name": "divide",
+    "args": {{
+        "input": {{
+            "a": 18,
+            "b": 2
+        }}
+    }}
+}}
 
-When the final answer is known, you must call the following functions **one at a time**, in this order:
+For remainder (27 % 4):
+{{
+    "type": "FUNCTION_CALL",
+    "name": "remainder",
+    "args": {{
+        "input": {{
+            "a": 27,
+            "b": 4
+        }}
+    }}
+}}
 
-a. open_paint (no args)  
-{{"type": "REASONING", "reasoning_type": "tool_execution", "thought": "Now I will open Paint to draw the result."}}  
-{{"type": "FUNCTION_CALL", "name": "open_paint", "args": {{}}}}
+For power (2 ** 3):
+{{
+    "type": "FUNCTION_CALL",
+    "name": "power",
+    "args": {{
+        "input": {{
+            "a": 2,
+            "b": 3
+        }}
+    }}
+}}
 
-b. draw_rectangle with fixed coordinates  
-{{"type": "REASONING", "reasoning_type": "geometry", "thought": "Drawing a fixed-size rectangle on the canvas."}}  
-{{"type": "FUNCTION_CALL", "name": "draw_rectangle", "args": {{"x1": 200, "y1": 200, "x2": 1000, "y2": 1000}}}}
+For floor division (100 // 9):
+{{
+    "type": "FUNCTION_CALL",
+    "name": "floor_divide",
+    "args": {{
+        "input": {{
+            "a": 100,
+            "b": 9
+        }}
+    }}
+}}
 
-c. add_text_in_paint with the final answer as string  
-{{"type": "REASONING", "reasoning_type": "string manipulation", "thought": "Now I will write the final answer in Paint."}}  
-{{"type": "FUNCTION_CALL", "name": "add_text_in_paint", "args": {{"text": "final_answer"}}}}
+Format your responses as JSON objects with the following structure:
+1. For reasoning: {{"type": "REASONING", "value": "your reasoning here"}}
+2. For function calls: Use the format shown above for each operation
+3. For final answers: {{"type": "FINAL_ANSWER", "value": "final result"}}
+4. For errors: {{"type": "ERROR", "message": "error message"}}
 
-d. Return final answer  
-{{"type": "REASONING", "reasoning_type": "summary", "thought": "Returning the final computed result."}}  
-{{"type": "FINAL_ANSWER", "value": final_answer}}
-
-======================================
-📌 RULES
-======================================
-
-- You must ONLY provide ONE step at a time. Do not plan ahead or provide multiple steps.
-- Each step must include exactly two JSON lines: REASONING and FUNCTION_CALL.
-- Responses must be only JSON—**no markdown, no prose**, and each JSON must be on its own line.
-- Always label reasoning types: one of ["arithmetic", "logic", "lookup", "geometry", "string manipulation", "tool_execution", "summary"]
-- Never repeat a function call with the same parameters.
-- Handle all tool outputs and errors explicitly.
-- If unsure or if an error occurs, respond with:
-  {{"type": "REASONING", "reasoning_type": "error_handling", "thought": "There was a failure or ambiguity."}}
-  {{"type": "ERROR", "message": "Describe the issue or ambiguity here."}}
-"""
+Each response should be on a new line."""
 
 def get_current_query(original_query: str, iteration: int, computation_history: list, current_expression: str, next_op: str = None, op_symbol: str = None) -> str:
     """Generate the current query based on the iteration and computation history"""
-    if iteration == 0:
-        return f"""Evaluate this expression step by step: {original_query}
+    query = f"""Original query: {original_query}
 
-Your task is to break down this expression into individual steps and solve ONE step at a time.
-For this iteration, focus ONLY on the first operation to perform.
-
-Start with the innermost parentheses and work your way out.
-Remember: You must ONLY provide ONE step at a time."""
+Computation history:"""
+    
+    if computation_history:
+        for i, step in enumerate(computation_history):
+            query += f"\nStep {i+1}: {step.operation} = {step.result}"
     else:
-        history = "\n".join([
-            f"Step {i+1}: {step['operation']} = {step['result']}"
-            for i, step in enumerate(computation_history)
-        ])
-        
-        return f"""Continue evaluating this expression step by step:
-
-📊 Computation History:
-{history}
-
-🔢 Current Expression: {current_expression}
-
-📝 Expression Breakdown:
-- Original expression: {original_query}
-- Current iteration: {iteration + 1}
-- Steps completed: {len(computation_history)}
-- Next operation type: {next_op if next_op else 'None'}
-- Next operation symbol: {op_symbol if op_symbol else 'None'}
-
-❓ Next Step:
-What is the next operation to perform? Remember:
-1. You must ONLY provide ONE step at a time
-2. Focus ONLY on the next immediate operation
-3. Do not plan ahead or provide multiple steps
-4. Work from innermost parentheses outward
-5. Don't repeat operations already performed
-6. Use the appropriate tool for the operation
-7. Show both the operation and its result
-8. Follow the order of operations: parentheses, exponents, multiplication/division, addition/subtraction""" 
+        query += "\nNo steps completed yet."
+    
+    query += f"\n\nCurrent expression: {current_expression}"
+    
+    if next_op and op_symbol:
+        query += f"\n\nWhat is the next operation to perform? The next operation should be {next_op} ({op_symbol})."
+    else:
+        query += "\n\nWhat is the next operation to perform?"
+    
+    return query 

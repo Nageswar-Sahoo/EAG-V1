@@ -3,6 +3,7 @@ from typing import List, Dict, Any
 from mcp import ClientSession, types
 import pyautogui
 import json
+from models import LLMResponse
 
 class ActionLayer:
     def __init__(self):
@@ -20,15 +21,24 @@ class ActionLayer:
 
             result = await session.call_tool(func_name, arguments=args)
             
-            if hasattr(result, 'content'):
-                if isinstance(result.content, list):
-                    formatted_result = [item.text if hasattr(item, 'text') else str(item) for item in result.content]
+            # Handle different result types
+            if isinstance(result, list):
+                if len(result) == 1:
+                    result = result[0]
                 else:
-                    formatted_result = str(result.content)
-            else:
-                formatted_result = str(result)
-                
-            return formatted_result
+                    result = result
+            
+            # Convert string results to appropriate type
+            if isinstance(result, str):
+                try:
+                    if '.' in result:
+                        return float(result)
+                    else:
+                        return int(result)
+                except (ValueError, TypeError):
+                    return result
+            
+            return result
             
         except Exception as e:
             self.logger.error(f"Tool error: {e}")
@@ -43,20 +53,19 @@ class ActionLayer:
     Result: {result}
 """
         
-    async def process_llm_response(self, session: ClientSession, tools: List[types.Tool], parsed_responses: List[Dict[str, Any]]) -> Any:
+    async def process_llm_response(self, session: ClientSession, tools: List[types.Tool], parsed_responses: List[LLMResponse]) -> Any:
         """Process the LLM response and execute appropriate actions"""
         self.logger.info("🔍 Processing LLM response...")
         
         for response in parsed_responses:
-            response_type = response.get("type")
-            self.logger.info(f"📝 Processing response type: {response_type}")
+            self.logger.info(f"📝 Processing response type: {response.type}")
             
-            if response_type == "FUNCTION_CALL":
+            if response.type == "FUNCTION_CALL":
                 try:
-                    self.logger.info(f"Executing function call: {response['name']}")
-                    self.logger.info(f"Function arguments: {json.dumps(response['args'], indent=2)}")
+                    self.logger.info(f"Executing function call: {response.name}")
+                    self.logger.info(f"Function arguments: {json.dumps(response.args, indent=2)}")
                     
-                    result = await self.handle_function_call(session, tools, response["name"], response["args"])
+                    result = await self.handle_function_call(session, tools, response.name, response.args)
                     
                     self.logger.info(f"Function call successful")
                     self.logger.info(f"Result: {result}")
@@ -64,15 +73,12 @@ class ActionLayer:
                 except Exception as e:
                     self.logger.error(f"Function call failed: {str(e)}")
                     return f"Error: {str(e)}"
-            elif response_type == "FINAL_ANSWER":
-                self.logger.info(f"🎯 Final answer received: {response.get('value')}")
-                return response.get("value")
-            elif response_type == "ERROR":
-                self.logger.error(f"Error response: {response.get('message')}")
-                return f"Error: {response.get('message')}"
-            elif response_type == "VERIFICATION":
-                self.logger.info(f"✓ Verification step: {response}")
-                return response
+            elif response.type == "FINAL_ANSWER":
+                self.logger.info(f"🎯 Final answer received: {response.value}")
+                return response.value
+            elif response.type == "ERROR":
+                self.logger.error(f"Error response: {response.message}")
+                return f"Error: {response.message}"
                 
         self.logger.warning("No valid response type found in parsed responses")
         return None 
