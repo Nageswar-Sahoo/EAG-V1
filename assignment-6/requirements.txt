@@ -1,0 +1,7 @@
+pyautogui
+
+#pip install --upgrade google-genai
+#pip install pyautogui  
+#pip install "mcp[cli]" 
+#pip install Pillow
+  
