@@ -1,120 +1,123 @@
-# Advanced Calculator with Visual Output
+# Mathematical Computation Agent
 
-A Python-based calculator application that combines mathematical operations with visual representation using Paint/Paintbrush. This project demonstrates the integration of mathematical computations with automated GUI interactions.
+A cognitive agent that can solve complex mathematical expressions using a multi-layer architecture. The agent uses Pydantic models for type safety and validation, and implements a step-by-step approach to solve mathematical problems.
+
+## Project Structure
+
+```
+.
+├── README.md
+├── requirements.txt
+├── .env
+├── main.py
+├── cognitive_agent.py
+├── models.py
+├── mcp_tool.py
+├── perception.py
+├── memory.py
+├── decision_making.py
+├── action.py
+└── prompts.py
+```
+
+## Components
+
+### 1. Core Components
+
+- **Cognitive Agent** (`cognitive_agent.py`): The main orchestrator that coordinates between different layers
+- **Models** (`models.py`): Pydantic models for type safety and validation
+- **MCP Tools** (`mcp_tool.py`): Mathematical computation tools and operations
+
+### 2. Layer Architecture
+
+- **Perception Layer** (`perception.py`): Handles LLM interactions and response parsing
+- **Memory Layer** (`memory.py`): Maintains computation history and state
+- **Decision Making Layer** (`decision_making.py`): Determines next operations and evaluates expressions
+- **Action Layer** (`action.py`): Executes mathematical operations
+
+### 3. Support Files
+
+- **Prompts** (`prompts.py`): Contains system prompts and query templates
+- **Main** (`main.py`): Entry point for the application
+- **Environment** (`.env`): Configuration and API keys
+- **Requirements** (`requirements.txt`): Project dependencies
 
 ## Features
 
-- **Mathematical Operations:**
-  - Basic operations (add, subtract, multiply, divide)
-  - Advanced functions (power, square root, cube root, factorial)
-  - Trigonometric functions (sin, cos, tan)
-  - Logarithmic calculations
-  - Fibonacci sequence generation
-  - List operations (sum, exponential sum)
+1. **Mathematical Operations**
+   - Basic operations: addition, subtraction, multiplication, division
+   - Advanced operations: power, remainder, floor division
+   - Support for parentheses and operator precedence
 
-- **Visual Output:**
-  - Automated Paintbrush integration (macOS)
-  - Drawing rectangles
-  - Text output of calculations
-  - Image thumbnail creation
+2. **Step-by-Step Evaluation**
+   - Breaks down complex expressions into simpler operations
+   - Maintains computation history
+   - Handles operator precedence correctly
 
-- **Additional Features:**
-  - ASCII value conversion for strings
-  - Custom mining operation
-  - Dynamic greeting resource
+3. **Type Safety**
+   - Uses Pydantic models for input validation
+   - Proper handling of numeric types (int/float)
+   - Error handling and validation
 
-## Technical Details
-
-Built using:
-- FastMCP for server implementation
-- PyAutoGUI for GUI automation
-- PIL for image processing
-- Math library for mathematical operations
-- Async functionality for responsive execution
+4. **Memory Management**
+   - Tracks computation history
+   - Maintains state between iterations
+   - Handles expression updates
 
 ## Usage
 
-The application processes mathematical queries and can display results visually in Paintbrush (macOS). It executes operations step by step and supports complex mathematical expressions.
+1. **Setup**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Example query:
+2. **Configuration**
+   - Create a `.env` file with your API keys
+   - Configure the maximum iterations in `cognitive_agent.py`
+
+3. **Running**
+   ```bash
+   python main.py
+   ```
+
+## Example
+
+The agent can solve complex expressions like:
 ```python
 ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9)
 ```
-![assignment-4](https://github.com/user-attachments/assets/11bb5795-4469-4b59-aa98-f496657a7fe0)
 
-Modified Prompt : 
+It will:
+1. Break down the expression into simpler operations
+2. Solve each operation in the correct order
+3. Maintain a history of computations
+4. Return the final result
 
-You are a step-by-step math agent. Solve math problems using the tools listed below. Think before each step. Use tools iteratively, verify results, and handle errors. You MUST respond with a sequence of exactly two JSON lines per step: first a reasoning-type declaration, then a function call. Final answers follow a fixed sequence.
+## Dependencies
 
-Available tools:
-{tools_description}
+- Python 3.8+
+- Pydantic
+- MCP (Mathematical Computation Protocol)
+- Google Generative AI
+- Other dependencies listed in `requirements.txt`
 
- OUTPUT FORMAT
+## Error Handling
 
-Every reasoning step must include:
+The system includes comprehensive error handling for:
+- Invalid mathematical expressions
+- Type mismatches
+- Operation failures
+- API errors
+- Timeout handling
 
-1. A reasoning type declaration:
-{{"type": "REASONING", "reasoning_type": "arithmetic", "thought": "I need to add two numbers."}}
+## Future Improvements
 
-2. A corresponding tool call:
-{{"type": "FUNCTION_CALL", "name": "add", "args": {{"a": 5, "b": 3}}}}
+1. Support for more mathematical operations
+2. Enhanced error recovery
+3. Improved expression parsing
+4. Better handling of complex expressions
+5. Support for symbolic mathematics
 
-When the final answer is known, you must call the following functions **one at a time**, in this order:
+## Contributing
 
-a. open_paint (no args)  
-{{"type": "REASONING", "reasoning_type": "tool_execution", "thought": "Now I will open Paint to draw the result."}}  
-{{"type": "FUNCTION_CALL", "name": "open_paint", "args": {{}}}}
-
-b. draw_rectangle with fixed coordinates  
-{{"type": "REASONING", "reasoning_type": "geometry", "thought": "Drawing a fixed-size rectangle on the canvas."}}  
-{{"type": "FUNCTION_CALL", "name": "draw_rectangle", "args": {{"x1": 200, "y1": 200, "x2": 1000, "y2": 1000}}}}
-
-c. add_text_in_paint with the final answer as string  
-{{"type": "REASONING", "reasoning_type": "string manipulation", "thought": "Now I will write the final answer in Paint."}}  
-{{"type": "FUNCTION_CALL", "name": "add_text_in_paint", "args": {{"text": "final_answer"}}}}
-
-d. Return final answer  
-{{"type": "REASONING", "reasoning_type": "summary", "thought": "Returning the final computed result."}}  
-{{"type": "FINAL_ANSWER", "value": final_answer}}
-
- RULES
-
-- Every step must include two JSON lines: first a REASONING, then a FUNCTION_CALL.
-- Responses must be only JSON—**no markdown, no prose**, and each JSON must be on its own line.
-- Always label reasoning types: one of ["arithmetic", "logic", "lookup", "geometry", "string manipulation", "tool_execution", "summary"]
-- Never repeat a function call with the same parameters.
-- Handle all tool outputs and errors explicitly.
-- If unsure or if an error occurs, respond with:
-  {{"type": "REASONING", "reasoning_type": "error_handling", "thought": "There was a failure or ambiguity."}}
-  {{"type": "ERROR", "message": "Describe the issue or ambiguity here."}}
-
- EXAMPLES
-
-{{"type": "REASONING", "reasoning_type": "arithmetic", "thought": "I need to add two numbers."}}
-{{"type": "FUNCTION_CALL", "name": "add", "args": {{"a": 5, "b": 3}}}}
-
-{{"type": "REASONING", "reasoning_type": "geometry", "thought": "Drawing a rectangle as required."}}
-{{"type": "FUNCTION_CALL", "name": "draw_rectangle", "args": {{"x1": 200, "y1": 200, "x2": 1000, "y2": 1000}}}}
-
-{{"type": "REASONING", "reasoning_type": "string manipulation", "thought": "Now I will add the result as text."}}
-{{"type": "FUNCTION_CALL", "name": "add_text_in_paint", "args": {{"text": "42"}}}}
-
-{{"type": "REASONING", "reasoning_type": "summary", "thought": "Returning the final answer."}}
-{{"type": "FINAL_ANSWER", "value": 42}}
-
-{{"type": "REASONING", "reasoning_type": "error_handling", "thought": "There was a failure or ambiguity."}}
-{{"type": "ERROR", "message": "Tool divide_by_zero failed due to invalid input."}}
-
-LLM Score for Prompt : 
-
-<img width="963" alt="image" src="https://github.com/user-attachments/assets/06b35063-c2d7-4a97-855b-0852512d805e" />
-
-
-## LLM - LOGS : 
-
-[View the script](./logs/)
-
-
-## Note
-
-Requires proper setup of environment variables and dependencies. The GUI automation is specifically configured for macOS Paintbrush application.
+Feel free to submit issues and enhancement requests.

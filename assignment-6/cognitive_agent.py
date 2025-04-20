@@ -17,7 +17,7 @@ class Agent:
         self.memory = MemoryLayer()
         self.decision_making = DecisionMakingLayer()
         self.action = ActionLayer()
-        self.max_iterations = 15
+        self.max_iterations = 20
         
     def reset_state(self):
         """Reset all layers to their initial state"""

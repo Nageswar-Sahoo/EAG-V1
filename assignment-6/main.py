@@ -24,7 +24,7 @@ logging.basicConfig(
 
 async def main():
     agent = Agent()
-    original_query = """Find the result of ((15 + 5) * 3 - (18 / 2)) + (27 % 4) - (2 ** 3) + (100 // 9) """
+    original_query = """Find the result of ((15 + 5) - (18 / 2)) + (27 % 4)+ (100 // 9) """
     await agent.run(original_query)
 
 if __name__ == "__main__":
