@@ -11,6 +11,11 @@ import time
 from markitdown import MarkItDown
 from tqdm import tqdm
 import hashlib
+from agent import Agent
+from perception import extract_perception
+from memory import MemoryManager, MemoryItem
+from decision import generate_plan
+from action import execute_tool, parse_function_call
 
 app = Flask(__name__)
 CORS(app)
@@ -22,7 +27,7 @@ ROOT = Path(__file__).parent.resolve()
 # Configuration
 EMBED_URL = "http://localhost:11434/api/embeddings"
 EMBED_MODEL = "nomic-embed-text"
-CHUNK_SIZE = 256
+CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 40
 
 # Create necessary directories
@@ -35,6 +40,10 @@ CACHE_FILE = FAISS_DIR / "doc_index_cache.json"
 # Initialize FAISS index and metadata
 index = None
 metadata = []
+
+# Initialize agent and memory manager
+agent = Agent()
+memory_manager = MemoryManager()
 
 def load_faiss_index():
     global index, metadata
@@ -176,37 +185,111 @@ def process_page():
 def search():
     data = request.json
     query = data.get('query')
-    k = data.get('k', 5)
     
     if not query:
         return jsonify({'error': 'Missing query'}), 400
     
     try:
-        ensure_faiss_ready()
+        # Use agent system to process the query
+        perception = extract_perception(query)
         
-        # Generate embedding for the query
-        query_vec = get_embedding(query).reshape(1, -1)
+        # Generate plan using the agent system
+        plan = generate_plan(
+            perception=perception,
+            memory_items=memory_manager.retrieve(query, top_k=3),  # Get relevant memories
+            tool_descriptions="Use search_documents tool to find relevant content and determine the best URL match."
+        )
         
-        # Search in FAISS index
-        D, I = index.search(query_vec, k)
+        # Execute the plan
+        if plan.startswith("FUNCTION_CALL:"):
+            # Parse the function call
+            tool_name, arguments = parse_function_call(plan)
+            
+            if tool_name == "search_documents":
+                # Get the search query from arguments
+                search_query = arguments.get("query", query)
+                
+                # Use FAISS to find relevant content
+                query_vec = get_embedding(search_query).reshape(1, -1)
+                D, I = index.search(query_vec, 5)  # Get top 5 results
+                
+                # Get all potential results
+                potential_results = []
+                for i, idx in enumerate(I[0]):
+                    if idx < len(metadata):
+                        result = metadata[idx].copy()
+                        result['similarity'] = f"{float(100 / (1 + D[0][i])):.2f}%"
+                        if 'chunk' not in result:
+                            result['chunk'] = result.get('content', 'No content available')
+                        potential_results.append(result)
+                
+                if not potential_results:
+                    return jsonify({
+                        'query': query,
+                        'results': [],
+                        'total_results': 0
+                    })
+                
+                # Let the agent process the results
+                result_context = {
+                    'query': query,
+                    'results': potential_results,
+                    'perception': perception.model_dump()
+                }
+                
+                # Process through agent
+                agent_response = agent.process_input(str(result_context))
+                
+                # Parse the agent's response to get the best match
+                if isinstance(agent_response, str):
+                    # Try to find the best match from the response
+                    best_result = None
+                    for result in potential_results:
+                        if result['url'] in agent_response or result['chunk'] in agent_response:
+                            best_result = result
+                            break
+                    
+                    if best_result:
+                        # Store the search results in memory
+                        memory_item = MemoryItem(
+                            text=f"Search results for: {query} - Best match: {best_result.get('url', 'No URL found')}",
+                            type="tool_output",
+                            tool_name="search_documents",
+                            user_query=query,
+                            tags=["search", "results", "best_match"]
+                        )
+                        memory_manager.add(memory_item)
+                        
+                        return jsonify({
+                            'query': query,
+                            'results': [best_result],
+                            'total_results': 1
+                        })
+                
+                # If no clear best match found, return the top result by similarity
+                best_result = potential_results[0]
+                
+                # Store the search results in memory
+                memory_item = MemoryItem(
+                    text=f"Search results for: {query} - Best match: {best_result.get('url', 'No URL found')}",
+                    type="tool_output",
+                    tool_name="search_documents",
+                    user_query=query,
+                    tags=["search", "results", "best_match"]
+                )
+                memory_manager.add(memory_item)
+                
+                return jsonify({
+                    'query': query,
+                    'results': [best_result],
+                    'total_results': 1
+                })
         
-        # Get results from metadata with similarity scores
-        results = []
-        for i, idx in enumerate(I[0]):
-            if idx < len(metadata):
-                # Convert distance to similarity score (0-100%)
-                similarity = float(100 / (1 + D[0][i]))  # Convert FAISS L2 distance to similarity percentage
-                result = metadata[idx].copy()
-                result['similarity'] = f"{similarity:.2f}%"
-                # Ensure we have content in the result
-                if 'chunk' not in result:
-                    result['chunk'] = result.get('content', 'No content available')
-                results.append(result)
-        
+        # If no results found or plan failed
         return jsonify({
             'query': query,
-            'results': results,
-            'total_results': len(results)
+            'results': [],
+            'total_results': 0
         })
     
     except Exception as e:

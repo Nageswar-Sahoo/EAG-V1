@@ -1,3 +1,19 @@
+// Function to check if current page should be skipped
+function shouldSkipPage() {
+    const url = window.location.href;
+    // Skip Google search pages
+    if (url.includes('google.com/search')) {
+        return true;
+    }
+    // Skip other search engines
+    if (url.includes('bing.com/search') || 
+        url.includes('yahoo.com/search') || 
+        url.includes('duckduckgo.com/')) {
+        return true;
+    }
+    return false;
+}
+
 // Function to extract text content from the page
 function extractPageContent() {
     // Get main content areas
@@ -49,6 +65,11 @@ function highlightText(text) {
 
 // Send page content to API
 async function processPage() {
+    // Skip if this is a search page
+    if (shouldSkipPage()) {
+        return;
+    }
+
     try {
         const response = await fetch('http://localhost:5000/process_page', {
             method: 'POST',

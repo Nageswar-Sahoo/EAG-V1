@@ -14,60 +14,37 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({
                 query: query,
-                k: 5
+                k: 1  // Only get the top result
             })
         })
         .then(response => response.json())
         .then(data => {
-            resultsDiv.innerHTML = ''; // Clear previous results
-            
             if (data.error) {
                 resultsDiv.innerHTML = `<div class="error">${data.error}</div>`;
                 return;
             }
 
-            // Display total results count
-            resultsDiv.innerHTML = `<div class="total-results">Found ${data.total_results} results for "${data.query}"</div>`;
-
-            // Display each result
-            data.results.forEach(result => {
-                const resultElement = document.createElement('div');
-                resultElement.className = 'result-item';
-                
-                // Create result HTML with proper formatting
-                resultElement.innerHTML = `
-                    <div class="result-header">
-                        <a href="${result.url || '#'}" target="_blank" class="result-url">
-                            ${result.url || 'No URL available'}
-                        </a>
-                        <span class="similarity-score">Similarity: ${result.similarity}</span>
-                    </div>
-                    <div class="result-content">
-                        ${result.chunk || result.content || 'No content available'}
-                    </div>
-                `;
-                
-                // Add click handler to open and highlight the content
-                resultElement.addEventListener('click', function() {
-                    if (result.url) {
-                        chrome.tabs.create({ url: result.url }, function(tab) {
-                            // Wait for the tab to load
-                            chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
-                                if (tabId === tab.id && changeInfo.status === 'complete') {
-                                    chrome.tabs.onUpdated.removeListener(listener);
-                                    // Send message to content script to highlight the text
-                                    chrome.tabs.sendMessage(tabId, {
-                                        type: 'highlight',
-                                        text: result.chunk || result.content
-                                    });
-                                }
-                            });
+            if (data.results && data.results.length > 0) {
+                const result = data.results[0];
+                if (result.url) {
+                    // Open the URL in a new tab
+                    chrome.tabs.create({ url: result.url }, function(tab) {
+                        // Wait for the tab to load
+                        chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
+                            if (tabId === tab.id && changeInfo.status === 'complete') {
+                                chrome.tabs.onUpdated.removeListener(listener);
+                                // Send message to content script to highlight the text
+                                chrome.tabs.sendMessage(tabId, {
+                                    type: 'highlight',
+                                    text: query  // Highlight the original search query
+                                });
+                            }
                         });
-                    }
-                });
-                
-                resultsDiv.appendChild(resultElement);
-            });
+                    });
+                }
+            } else {
+                resultsDiv.innerHTML = `<div class="error">No results found</div>`;
+            }
         })
         .catch(error => {
             resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
