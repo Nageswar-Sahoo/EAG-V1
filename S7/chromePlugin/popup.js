@@ -47,6 +47,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 
+                // Add click handler to open and highlight the content
+                resultElement.addEventListener('click', function() {
+                    if (result.url) {
+                        chrome.tabs.create({ url: result.url }, function(tab) {
+                            // Wait for the tab to load
+                            chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
+                                if (tabId === tab.id && changeInfo.status === 'complete') {
+                                    chrome.tabs.onUpdated.removeListener(listener);
+                                    // Send message to content script to highlight the text
+                                    chrome.tabs.sendMessage(tabId, {
+                                        type: 'highlight',
+                                        text: result.chunk || result.content
+                                    });
+                                }
+                            });
+                        });
+                    }
+                });
+                
                 resultsDiv.appendChild(resultElement);
             });
         })

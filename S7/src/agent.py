@@ -12,12 +12,65 @@ from mcp.client.stdio import stdio_client
 
 import shutil
 import sys
+from typing import List, Optional
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def log(stage: str, msg: str):
     now = datetime.datetime.now().strftime("%H:%M:%S")
     print(f"[{now}] [{stage}] {msg}")
 
 max_steps = 3
+
+class Agent:
+    def __init__(self):
+        self.memory = MemoryManager()
+        self.tools = []  # Will be populated with available tools
+        
+    def log(self, stage: str, msg: str):
+        now = datetime.datetime.now().strftime("%H:%M:%S")
+        logger.info(f"[{now}] [{stage}] {msg}")
+        
+    async def process_input(self, user_input: str) -> str:
+        """Process user input through the agent's pipeline"""
+        try:
+            # 1. Perception
+            self.log("perception", f"Processing input: {user_input}")
+            perception = extract_perception(user_input)
+            
+            # 2. Memory
+            relevant_memories = self.memory.retrieve(
+                query=user_input,
+                top_k=3
+            )
+            
+            # 3. Decision
+            plan = generate_plan(
+                perception=perception,
+                memory_items=relevant_memories,
+                tool_descriptions=str([t.__doc__ for t in self.tools])
+            )
+            
+            # 4. Action
+            if plan.startswith("FUNCTION_CALL:"):
+                result = await execute_tool(self.tools, plan)
+                return str(result)
+            elif plan.startswith("FINAL_ANSWER:"):
+                return plan.replace("FINAL_ANSWER:", "").strip()
+            else:
+                return "I'm not sure how to handle that request."
+                
+        except Exception as e:
+            self.log("error", f"Error processing input: {str(e)}")
+            return f"An error occurred: {str(e)}"
+            
+    def register_tool(self, tool):
+        """Register a new tool with the agent"""
+        self.tools.append(tool)
+        self.log("tool", f"Registered tool: {tool.__name__}")
 
 async def main(user_input: str):
     try:

@@ -6,6 +6,9 @@ import requests
 from typing import List, Optional, Literal
 from pydantic import BaseModel
 from datetime import datetime
+import json
+from pathlib import Path
+import os
 
 
 class MemoryItem(BaseModel):
@@ -16,6 +19,8 @@ class MemoryItem(BaseModel):
     user_query: Optional[str] = None
     tags: List[str] = []
     session_id: Optional[str] = None
+    url: Optional[str] = None
+    chunk_id: Optional[str] = None
 
 
 class MemoryManager:
@@ -25,8 +30,25 @@ class MemoryManager:
         self.index = None
         self.data: List[MemoryItem] = []
         self.embeddings: List[np.ndarray] = []
+        self.index_path = Path("faiss_index")
+        self.metadata_path = self.index_path / "metadata.json"
+        self._load_index()
+
+    def _load_index(self):
+        """Load existing FAISS index and metadata if available"""
+        try:
+            if self.index_path.exists():
+                self.index = faiss.read_index(str(self.index_path / "index.bin"))
+                if self.metadata_path.exists():
+                    with open(self.metadata_path, 'r') as f:
+                        self.data = [MemoryItem(**item) for item in json.load(f)]
+        except Exception as e:
+            print(f"Error loading index: {e}")
+            self.index = None
+            self.data = []
 
     def _get_embedding(self, text: str) -> np.ndarray:
+        """Get embedding for text using the embedding model"""
         response = requests.post(
             self.embedding_model_url,
             json={"model": self.model_name, "prompt": text}
@@ -35,6 +57,7 @@ class MemoryManager:
         return np.array(response.json()["embedding"], dtype=np.float32)
 
     def add(self, item: MemoryItem):
+        """Add a new memory item to the index"""
         emb = self._get_embedding(item.text)
         self.embeddings.append(emb)
         self.data.append(item)
@@ -44,6 +67,17 @@ class MemoryManager:
             self.index = faiss.IndexFlatL2(len(emb))
         self.index.add(np.stack([emb]))
 
+        # Save index and metadata
+        self._save_index()
+
+    def _save_index(self):
+        """Save the FAISS index and metadata"""
+        self.index_path.mkdir(exist_ok=True)
+        if self.index:
+            faiss.write_index(self.index, str(self.index_path / "index.bin"))
+        with open(self.metadata_path, 'w') as f:
+            json.dump([item.dict() for item in self.data], f, indent=2)
+
     def retrieve(
         self,
         query: str,
@@ -52,6 +86,7 @@ class MemoryManager:
         tag_filter: Optional[List[str]] = None,
         session_filter: Optional[str] = None
     ) -> List[MemoryItem]:
+        """Retrieve relevant memories based on query"""
         if not self.index or len(self.data) == 0:
             return []
 
@@ -83,5 +118,6 @@ class MemoryManager:
         return results
 
     def bulk_add(self, items: List[MemoryItem]):
+        """Add multiple memory items at once"""
         for item in items:
             self.add(item)
