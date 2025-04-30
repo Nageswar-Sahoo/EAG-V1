@@ -30,16 +30,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Open the URL in a new tab
                     chrome.tabs.create({ url: result.url }, function(tab) {
                         // Wait for the tab to load
-                        chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
-                            if (tabId === tab.id && changeInfo.status === 'complete') {
-                                chrome.tabs.onUpdated.removeListener(listener);
-                                // Send message to content script to highlight the text
-                                chrome.tabs.sendMessage(tabId, {
-                                    type: 'highlight',
-                                    text: query  // Highlight the original search query
-                                });
-                            }
-                        });
+                        const checkLoad = setInterval(function() {
+                            chrome.tabs.get(tab.id, function(tabInfo) {
+                                if (tabInfo.status === 'complete') {
+                                    clearInterval(checkLoad);
+                                    // Send message to content script to highlight the text
+                                    chrome.tabs.sendMessage(tab.id, {
+                                        type: 'highlight',
+                                        text: query,
+                                        color: 'yellow'
+                                    }, function(response) {
+                                        if (chrome.runtime.lastError) {
+                                            console.error('Error sending highlight message:', chrome.runtime.lastError);
+                                            // If content script isn't loaded yet, try again after a short delay
+                                            setTimeout(function() {
+                                                chrome.tabs.sendMessage(tab.id, {
+                                                    type: 'highlight',
+                                                    text: query,
+                                                    color: 'yellow'
+                                                });
+                                            }, 1000);
+                                        }
+                                    });
+                                }
+                            });
+                        }, 100); // Check every 100ms
                     });
                 }
             } else {

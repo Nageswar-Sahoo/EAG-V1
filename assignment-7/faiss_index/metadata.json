@@ -133,5 +133,20 @@
     "session_id": null,
     "url": null,
     "chunk_id": null
+  },
+  {
+    "text": "Search results for: To mitigate these risks, you\u2019ll want to add proper checks for authentication, authorization, and input validation. Secure WebSocket connections (wss://) also help keep data encrypted, protecting it from eavesdropping and tampering. - Best match: https://medium.com/@AlexanderObregon/building-real-time-applications-with-python-and-websockets-eb33a4098e02",
+    "type": "tool_output",
+    "timestamp": "2025-04-30T15:27:31.756976",
+    "tool_name": "search_documents",
+    "user_query": "To mitigate these risks, you\u2019ll want to add proper checks for authentication, authorization, and input validation. Secure WebSocket connections (wss://) also help keep data encrypted, protecting it from eavesdropping and tampering.",
+    "tags": [
+      "search",
+      "results",
+      "best_match"
+    ],
+    "session_id": null,
+    "url": null,
+    "chunk_id": null
   }
 ]

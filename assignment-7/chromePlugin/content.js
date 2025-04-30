@@ -26,7 +26,7 @@ function extractPageContent() {
 }
 
 // Function to highlight text on the page
-function highlightText(text) {
+function highlightText(text, color = 'yellow') {
     // Remove any existing highlights
     const existingHighlights = document.querySelectorAll('.search-highlight');
     existingHighlights.forEach(el => {
@@ -43,22 +43,50 @@ function highlightText(text) {
     );
 
     let node;
+    const regex = new RegExp(text, 'gi');
+    let highlighted = false;
+
     while (node = walker.nextNode()) {
-        if (node.textContent.includes(text)) {
+        if (node.textContent.match(regex)) {
             const span = document.createElement('span');
             span.className = 'search-highlight';
-            span.style.backgroundColor = 'yellow';
+            span.style.backgroundColor = color;
             span.style.padding = '2px';
             span.style.borderRadius = '3px';
-            span.textContent = text;
             
-            const range = document.createRange();
-            const startIndex = node.textContent.indexOf(text);
-            range.setStart(node, startIndex);
-            range.setEnd(node, startIndex + text.length);
+            const textContent = node.textContent;
+            const matches = textContent.matchAll(regex);
+            let lastIndex = 0;
+            let newContent = '';
+
+            for (const match of matches) {
+                // Add text before the match
+                newContent += textContent.substring(lastIndex, match.index);
+                // Add the highlighted match
+                newContent += `<span class="search-highlight" style="background-color: ${color}; padding: 2px; border-radius: 3px;">${match[0]}</span>`;
+                lastIndex = match.index + match[0].length;
+            }
+            // Add remaining text
+            newContent += textContent.substring(lastIndex);
+
+            const temp = document.createElement('div');
+            temp.innerHTML = newContent;
             
-            range.deleteContents();
-            range.insertNode(span);
+            // Replace the text node with the highlighted content
+            while (temp.firstChild) {
+                node.parentNode.insertBefore(temp.firstChild, node);
+            }
+            node.parentNode.removeChild(node);
+            
+            highlighted = true;
+        }
+    }
+
+    if (highlighted) {
+        // Scroll to the first highlight
+        const firstHighlight = document.querySelector('.search-highlight');
+        if (firstHighlight) {
+            firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 }
@@ -96,7 +124,7 @@ processPage();
 // Listen for highlight requests from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === 'highlight') {
-        highlightText(request.text);
+        highlightText(request.text, request.color);
         sendResponse({ success: true });
     }
 }); 
