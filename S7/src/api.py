@@ -11,7 +11,7 @@ import time
 from markitdown import MarkItDown
 from tqdm import tqdm
 import hashlib
-from agent import Agent
+from agent import Agent, log
 from perception import extract_perception
 from memory import MemoryManager, MemoryItem
 from decision import generate_plan
@@ -187,31 +187,49 @@ def search():
     query = data.get('query')
     
     if not query:
+        log("search", "Error: Missing query parameter")
         return jsonify({'error': 'Missing query'}), 400
     
     try:
+        log("search", f"Processing search query: {query}")
+        
         # Use agent system to process the query
+        log("search", "Extracting perception from query")
         perception = extract_perception(query)
+        log("search", f"Perception extracted: {perception.model_dump()}")
+        
+        # Get relevant memories
+        log("search", "Retrieving relevant memories")
+        memory_items = memory_manager.retrieve(query, top_k=3)
+        log("search", f"Retrieved {len(memory_items)} relevant memories")
         
         # Generate plan using the agent system
+        log("search", "Generating plan using agent system")
         plan = generate_plan(
             perception=perception,
-            memory_items=memory_manager.retrieve(query, top_k=3),  # Get relevant memories
+            memory_items=memory_items,
             tool_descriptions="Use search_documents tool to find relevant content and determine the best URL match."
         )
+        log("search", f"Generated plan: {plan}")
         
         # Execute the plan
         if plan.startswith("FUNCTION_CALL:"):
             # Parse the function call
+            log("search", "Parsing function call")
             tool_name, arguments = parse_function_call(plan)
+            log("search", f"Parsed function call - Tool: {tool_name}, Arguments: {arguments}")
             
             if tool_name == "search_documents":
                 # Get the search query from arguments
                 search_query = arguments.get("query", query)
+                log("search", f"Using search query: {search_query}")
                 
                 # Use FAISS to find relevant content
+                log("search", "Generating embedding for search query")
                 query_vec = get_embedding(search_query).reshape(1, -1)
+                log("search", "Searching FAISS index")
                 D, I = index.search(query_vec, 5)  # Get top 5 results
+                log("search", f"FAISS search complete - Found {len(I[0])} potential matches")
                 
                 # Get all potential results
                 potential_results = []
@@ -222,8 +240,10 @@ def search():
                         if 'chunk' not in result:
                             result['chunk'] = result.get('content', 'No content available')
                         potential_results.append(result)
+                        log("search", f"Added potential result {i+1}: {result.get('url', 'No URL')} (Similarity: {result['similarity']})")
                 
                 if not potential_results:
+                    log("search", "No potential results found")
                     return jsonify({
                         'query': query,
                         'results': [],
@@ -231,6 +251,7 @@ def search():
                     })
                 
                 # Let the agent process the results
+                log("search", "Preparing context for agent")
                 result_context = {
                     'query': query,
                     'results': potential_results,
@@ -238,19 +259,24 @@ def search():
                 }
                 
                 # Process through agent
+                log("search", "Processing results through agent")
                 agent_response = agent.process_input(str(result_context))
+                log("search", f"Agent response: {agent_response}")
                 
                 # Parse the agent's response to get the best match
                 if isinstance(agent_response, str):
+                    log("search", "Parsing agent response for best match")
                     # Try to find the best match from the response
                     best_result = None
                     for result in potential_results:
                         if result['url'] in agent_response or result['chunk'] in agent_response:
                             best_result = result
+                            log("search", f"Found best match in agent response: {result.get('url', 'No URL')}")
                             break
                     
                     if best_result:
                         # Store the search results in memory
+                        log("search", "Storing search results in memory")
                         memory_item = MemoryItem(
                             text=f"Search results for: {query} - Best match: {best_result.get('url', 'No URL found')}",
                             type="tool_output",
@@ -260,16 +286,18 @@ def search():
                         )
                         memory_manager.add(memory_item)
                         
+                        log("search", f"Returning best match: {best_result.get('url', 'No URL')}")
                         return jsonify({
                             'query': query,
                             'results': [best_result],
                             'total_results': 1
                         })
                 
-                # If no clear best match found, return the top result by similarity
                 best_result = potential_results[0]
+                log("search", f"Selected top result: {best_result.get('url', 'No URL')}")
                 
                 # Store the search results in memory
+                log("search", "Storing search results in memory")
                 memory_item = MemoryItem(
                     text=f"Search results for: {query} - Best match: {best_result.get('url', 'No URL found')}",
                     type="tool_output",
@@ -279,6 +307,7 @@ def search():
                 )
                 memory_manager.add(memory_item)
                 
+                log("search", f"Returning top result: {best_result.get('url', 'No URL')}")
                 return jsonify({
                     'query': query,
                     'results': [best_result],
@@ -286,6 +315,7 @@ def search():
                 })
         
         # If no results found or plan failed
+        log("search", "No results found or plan failed")
         return jsonify({
             'query': query,
             'results': [],
@@ -293,6 +323,7 @@ def search():
         })
     
     except Exception as e:
+        log("search", f"Error in search endpoint: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

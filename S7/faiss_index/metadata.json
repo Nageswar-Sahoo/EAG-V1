@@ -58,5 +58,80 @@
     "session_id": null,
     "url": null,
     "chunk_id": null
+  },
+  {
+    "text": "Search results for: Building Real-time Applications with Python and WebSockets - Best match: https://www.educative.io/courses/grokking-coding-interview-in-python",
+    "type": "tool_output",
+    "timestamp": "2025-04-30T10:29:52.010399",
+    "tool_name": "search_documents",
+    "user_query": "Building Real-time Applications with Python and WebSockets",
+    "tags": [
+      "search",
+      "results",
+      "best_match"
+    ],
+    "session_id": null,
+    "url": null,
+    "chunk_id": null
+  },
+  {
+    "text": "Search results for: Building Real-time Applications with Python and WebSockets - Best match: https://www.educative.io/courses/grokking-coding-interview-in-python",
+    "type": "tool_output",
+    "timestamp": "2025-04-30T10:29:52.010399",
+    "tool_name": "search_documents",
+    "user_query": "Building Real-time Applications with Python and WebSockets",
+    "tags": [
+      "search",
+      "results",
+      "best_match"
+    ],
+    "session_id": null,
+    "url": null,
+    "chunk_id": null
+  },
+  {
+    "text": "Search results for: Building Real-time Applications with Python and WebSockets - Best match: https://www.educative.io/courses/grokking-coding-interview-in-python",
+    "type": "tool_output",
+    "timestamp": "2025-04-30T10:42:45.044569",
+    "tool_name": "search_documents",
+    "user_query": "Building Real-time Applications with Python and WebSockets",
+    "tags": [
+      "search",
+      "results",
+      "best_match"
+    ],
+    "session_id": null,
+    "url": null,
+    "chunk_id": null
+  },
+  {
+    "text": "Search results for: Building Real-time Applications with Python and WebSockets - Best match: https://medium.com/@AlexanderObregon/building-real-time-applications-with-python-and-websockets-eb33a4098e02",
+    "type": "tool_output",
+    "timestamp": "2025-04-30T12:06:50.577166",
+    "tool_name": "search_documents",
+    "user_query": "Building Real-time Applications with Python and WebSockets",
+    "tags": [
+      "search",
+      "results",
+      "best_match"
+    ],
+    "session_id": null,
+    "url": null,
+    "chunk_id": null
+  },
+  {
+    "text": "Search results for: We start by bringing in the asyncio and websockets modules, which let us handle asynchronous tasks and WebSocket connections. There's a set called connected_clients that keeps track of everyone currently connected. Each time a new client joins, the handle_client function adds them to that set - Best match: https://medium.com/@AlexanderObregon/building-real-time-applications-with-python-and-websockets-eb33a4098e02",
+    "type": "tool_output",
+    "timestamp": "2025-04-30T12:06:50.577166",
+    "tool_name": "search_documents",
+    "user_query": "We start by bringing in the asyncio and websockets modules, which let us handle asynchronous tasks and WebSocket connections. There's a set called connected_clients that keeps track of everyone currently connected. Each time a new client joins, the handle_client function adds them to that set",
+    "tags": [
+      "search",
+      "results",
+      "best_match"
+    ],
+    "session_id": null,
+    "url": null,
+    "chunk_id": null
   }
 ]
