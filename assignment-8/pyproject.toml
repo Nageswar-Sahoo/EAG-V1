@@ -20,5 +20,6 @@ dependencies = [
     "numpy>=1.21.0",
     "requests>=2.26.0",
     "tqdm>=4.67.1",
-    "pydantic>=1.8.2"
+    "pydantic>=1.8.2",
+    "python-telegram-bot>=20.7",
 ]
