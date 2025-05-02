@@ -9,16 +9,25 @@ import threading
 import uvicorn
 from fastapi import FastAPI
 import nest_asyncio
+from agent import Agent
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+import datetime
 
 # Enable nested event loops
 nest_asyncio.apply()
 
-# Set up logging - only show important messages
+# Set up logging with more detailed format
 logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format='%(asctime)s - %(levelname)s - [%(name)s] - %(message)s',
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('telegram_bot.log')
+    ]
 )
 logger = logging.getLogger(__name__)
+
 
 # Load environment variables
 load_dotenv()
@@ -46,6 +55,74 @@ mcp = FastMCP(
 # Store messages for SSE
 message_queue = asyncio.Queue()
 
+def log_with_timestamp(message: str, level: str = "INFO"):
+    """Helper function to log messages with timestamp"""
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_message = f"[{timestamp}] {message}"
+    logger.info(log_message)
+
+    # if level == "INFO":
+    #     logger.info(log_message)
+    # elif level == "DEBUG":
+    #     logger.debug(log_message)
+    # elif level == "WARNING":
+    #     logger.warning(log_message)
+    # elif level == "ERROR":
+    #     logger.error(log_message)
+
+async def process_with_agent(message: str) -> str:
+    """Process message using the Agent class."""
+    try:
+        log_with_timestamp(f"Starting agent processing for message: {message}")
+
+        agent = Agent()
+        log_with_timestamp("calling agent main function...")
+
+        result = await agent.main(message)
+        log_with_timestamp(f"Agent processing complete. Result: {result[:100]}...")
+        return result
+
+        
+        # # Set up MCP server parameters
+        # server_params = StdioServerParameters(
+        #     command="python",
+        #     args=["example3.py"],
+        #     cwd="/Users/nageswar.sahoo/Desktop/ERAG/EAG-V1/assignment-8/src/"
+        # )
+
+        # log_with_timestamp("Connecting to MCP server...")
+        # async with stdio_client(server_params) as (read, write):
+        #     async with ClientSession(read, write) as session:
+        #         log_with_timestamp("Initializing MCP session...")
+        #         await session.initialize()
+                
+        #         # Initialize agent
+        #         log_with_timestamp("Initializing Agent...")
+        #         agent = Agent()
+                
+        #         # Get available tools
+        #         # log_with_timestamp("Fetching available tools...")
+        #         # tools_result = await session.list_tools()
+        #         # tools = tools_result.tools
+                
+        #         # # Register tools with agent
+        #         # log_with_timestamp(f"Registering {len(tools)} tools with agent...")
+        #         # for tool in tools:
+        #         #     agent.register_tool(tool)
+        #         #     log_with_timestamp(f"Registered tool: {tool.name}", "DEBUG")
+                
+        #         # # Process the message
+        #         # log_with_timestamp("Processing message through agent pipeline...")
+        #         log_with_timestamp("calling agent main function...")
+
+        #         result = await agent.main(message)
+        #         log_with_timestamp(f"Agent processing complete. Result: {result[:100]}...")
+        #         return result
+                
+    except Exception as e:
+        log_with_timestamp(f"Error in agent processing: {str(e)}", "ERROR")
+        return f"Sorry, I encountered an error while processing your request: {str(e)}"
+
 async def handle_message(update, context: ContextTypes.DEFAULT_TYPE):
     """Handle incoming messages."""
     try:
@@ -55,20 +132,34 @@ async def handle_message(update, context: ContextTypes.DEFAULT_TYPE):
         chat_title = update.message.chat.title if update.message.chat.type != 'private' else 'Private Chat'
         username = update.message.from_user.username or update.message.from_user.first_name
         
-        logger.info(f"Message from {username} in {chat_title} ({chat_id}): {message_text}")
+        log_with_timestamp(f"Received message from {username} in {chat_title} ({chat_id}): {message_text}")
         
         # If CHAT_ID is not set, accept messages from any chat
         if not CHAT_ID or str(chat_id) == CHAT_ID:
+            # Show typing indicator
+            log_with_timestamp("Showing typing indicator...")
+            await context.bot.send_chat_action(chat_id=chat_id, action="typing")
+            
+            # Process message with agent
+            log_with_timestamp("Starting message processing...")
+            response = await process_with_agent(message_text)
+            
+            # Send response back to user
+            log_with_timestamp("Sending response to user...")
+            await update.message.reply_text(response)
+            
+            # Store in message queue for SSE
+            log_with_timestamp("Storing message in queue...")
             await message_queue.put(message_text)
-            await update.message.reply_text(f"Received: {message_text}")
         else:
+            log_with_timestamp(f"Unauthorized access attempt from chat {chat_id}", "WARNING")
             if chat_type == 'private':
                 await update.message.reply_text(
                     f"Sorry, you are not authorized to use this bot.\n"
                     f"Your chat ID is: {chat_id}"
                 )
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
+        log_with_timestamp(f"Error processing message: {str(e)}", "ERROR")
         await update.message.reply_text("Sorry, there was an error processing your message.")
 
 async def start_command(update, context: ContextTypes.DEFAULT_TYPE):

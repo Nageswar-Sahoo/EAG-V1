@@ -17,7 +17,14 @@ from models import AddInput, AddOutput, SqrtInput, SqrtOutput, StringsToIntsInpu
 from PIL import Image as PILImage
 from tqdm import tqdm
 import hashlib
+from tavily import TavilyClient
 
+# Initialize Tavily client
+TAVILY_API_KEY = os.getenv('TAVILY_API_KEY')
+if not TAVILY_API_KEY:
+    raise ValueError("TAVILY_API_KEY not found in environment variables!")
+
+tavily_client = TavilyClient(api_key=TAVILY_API_KEY)
 
 mcp = FastMCP("Calculator")
 
@@ -213,6 +220,30 @@ def debug_error(error: str) -> list[base.Message]:
         base.UserMessage(error),
         base.AssistantMessage("I'll help debug that. What have you tried so far?"),
     ]
+
+@mcp.tool()
+def search_web(query: str) -> str:
+    """Search the web for real-time content using Tavily API. You can do search for Weather report or any other content."""
+    print("CALLED: search_web(query: str) -> str")
+    try:
+        search_result = tavily_client.search(
+            query=query,
+            search_depth="advanced",
+            max_results=5
+        )
+        
+        if not search_result.get('results'):
+            return "No results found."
+            
+        response = "Here's what I found:\n\n"
+        for i, result in enumerate(search_result['results'], 1):
+            response += f"{i}. {result['title']}\n"
+            response += f"   {result['url']}\n"
+            response += f"   {result['content'][:200]}...\n\n"
+            
+        return response
+    except Exception as e:
+        return f"Error performing search: {str(e)}"
 
 def process_documents():
     """Process documents and create FAISS index"""
