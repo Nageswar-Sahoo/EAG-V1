@@ -44,6 +44,7 @@ max_steps = 3
 MAX_RETRIES = 3
 INITIAL_RETRY_DELAY = 1  # seconds
 SHEETS_MCP_URL = "http://localhost:8051/process_result"
+EMAIL_MCP_URL = "http://localhost:8052/send_email"
 
 async def retry_with_backoff(func, *args, **kwargs):
     """Retry a function with exponential backoff"""
@@ -87,6 +88,32 @@ async def store_result_in_sheets(result_data: dict) -> str:
                     raise Exception(f"HTTP error: {response.status}")
     except Exception as e:
         log_with_timestamp(f"Error storing result in sheets: {str(e)}", "ERROR")
+        raise
+
+async def send_email_notification(result_data: dict, sheets_link: str) -> dict:
+    """Send email notification with results"""
+    try:
+        email_data = {
+            "recipient_email": "tech.nageswar@gmail.com",  # Your email
+            "subject": "AI Assistant Results",
+            "content": {
+                **result_data,
+                "spreadsheet_link": sheets_link
+            }
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(EMAIL_MCP_URL, json=email_data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    if result["status"] == "success":
+                        return {"status": "success", "message": result["message"]}
+                    else:
+                        raise Exception(f"Error sending email: {result['message']}")
+                else:
+                    raise Exception(f"HTTP error: {response.status}")
+    except Exception as e:
+        log_with_timestamp(f"Error sending email notification: {str(e)}", "ERROR")
         raise
 
 class Agent:
@@ -221,11 +248,27 @@ class Agent:
                                         }
                                         
                                         try:
+                                            # Store in sheets
                                             sheets_link = await store_result_in_sheets(result_data)
-                                            return f"Your result has been stored in Google Sheets. You can view it here: {sheets_link}"
+                                            
+                                            # Send email notification
+                                            email_result = await send_email_notification(result_data, sheets_link)
+                                            
+                                            return (
+                                                f"Your result has been stored in Google Sheets and "
+                                                f"an email notification has been sent.\n"
+                                                f"Sheets Link: {sheets_link}\n"
+                                                f"Email Status: {email_result['message']}"
+                                            )
                                         except Exception as e:
-                                            log_with_timestamp(f"Error storing in sheets: {str(e)}", "ERROR")
-                                            return f"Final answer: {final_answer}\n(Note: Could not store in Google Sheets: {str(e)})"
+                                            if "store_result_in_sheets" in str(e):
+                                                return f"Final answer: {final_answer}\n(Note: Could not store in Google Sheets: {str(e)})"
+                                            else:
+                                                return (
+                                                    f"Final answer: {final_answer}\n"
+                                                    f"Sheets Link: {sheets_link}\n"
+                                                    f"(Note: Could not send email: {str(e)})"
+                                                )
 
                                     try:
                                         result = await retry_with_backoff(execute_tool, session, tools, plan)
