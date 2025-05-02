@@ -8,13 +8,13 @@ from decision import generate_plan
 from action import execute_tool
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
- # use this to connect to running server
-
 import shutil
 import sys
 from typing import List, Optional
 import logging
 import random
+import aiohttp
+import json
 
 # Configure logging
 logging.basicConfig(
@@ -43,6 +43,7 @@ def log_with_timestamp(message: str, level: str = "INFO"):
 max_steps = 3
 MAX_RETRIES = 3
 INITIAL_RETRY_DELAY = 1  # seconds
+SHEETS_MCP_URL = "http://localhost:8051/process_result"
 
 async def retry_with_backoff(func, *args, **kwargs):
     """Retry a function with exponential backoff"""
@@ -71,6 +72,23 @@ async def retry_with_backoff(func, *args, **kwargs):
     
     raise last_exception
 
+async def store_result_in_sheets(result_data: dict) -> str:
+    """Store result in Google Sheets via MCP server"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(SHEETS_MCP_URL, json=result_data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    if result["status"] == "success":
+                        return result["spreadsheet_link"]
+                    else:
+                        raise Exception(f"Error from Sheets MCP: {result['message']}")
+                else:
+                    raise Exception(f"HTTP error: {response.status}")
+    except Exception as e:
+        log_with_timestamp(f"Error storing result in sheets: {str(e)}", "ERROR")
+        raise
+
 class Agent:
     def __init__(self):
         log_with_timestamp("Initializing Agent...")
@@ -86,7 +104,6 @@ class Agent:
         try:
             # 1. Perception
             self.log("perception", f"Processing input: {user_input}")
-            # Since extract_perception is synchronous, we don't need to await it
             perception = extract_perception(user_input)
             self.log("perception", f"Extracted perception - Intent: {perception.intent}, Tool hint: {perception.tool_hint}")
             
@@ -100,7 +117,6 @@ class Agent:
             
             # 3. Decision
             self.log("decision", "Generating plan...")
-            # Since generate_plan is synchronous, we don't need to await it
             plan = generate_plan(
                 perception=perception,
                 memory_items=relevant_memories,
@@ -178,14 +194,12 @@ class Agent:
                                 while step < max_steps:
                                     log_with_timestamp(f"Step {step + 1} started")
 
-                                    # Since extract_perception is synchronous, we don't need to await it
                                     perception = extract_perception(user_input)
                                     log_with_timestamp(f"Intent: {perception.intent}, Tool hint: {perception.tool_hint}")
 
                                     retrieved = memory.retrieve(query=user_input, top_k=3, session_filter=session_id)
                                     log_with_timestamp(f"Retrieved {len(retrieved)} relevant memories")
 
-                                    # Since generate_plan is synchronous, we don't need to await it
                                     plan = generate_plan(
                                         perception=perception,
                                         memory_items=retrieved,
@@ -196,7 +210,22 @@ class Agent:
                                     if plan.startswith("FINAL_ANSWER:"):
                                         final_answer = plan.replace("FINAL_ANSWER:", "").strip()
                                         log_with_timestamp(f"✅ FINAL RESULT: {final_answer}")
-                                        return final_answer
+                                        
+                                        # Store result in Google Sheets
+                                        result_data = {
+                                            "query": query,
+                                            "answer": final_answer,
+                                            "timestamp": datetime.datetime.now().isoformat(),
+                                            "session_id": session_id,
+                                            "steps_taken": step + 1
+                                        }
+                                        
+                                        try:
+                                            sheets_link = await store_result_in_sheets(result_data)
+                                            return f"Your result has been stored in Google Sheets. You can view it here: {sheets_link}"
+                                        except Exception as e:
+                                            log_with_timestamp(f"Error storing in sheets: {str(e)}", "ERROR")
+                                            return f"Final answer: {final_answer}\n(Note: Could not store in Google Sheets: {str(e)})"
 
                                     try:
                                         result = await retry_with_backoff(execute_tool, session, tools, plan)
