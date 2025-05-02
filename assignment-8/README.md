@@ -46,7 +46,7 @@ cd <project-directory>
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv  pip install . (all dependecy is under pyproject.toml)
 ```
 
 3. Set up environment variables in `.env`:
@@ -146,33 +146,3 @@ Logs are stored in:
 - `sheets_mcp_server.log`
 - `email_mcp_server.log`
 - `telegram_bot.log`
-
-## 🔒 Security
-
-- Uses OAuth 2.0 for Google API authentication
-- App Passwords for Gmail
-- Environment variables for sensitive data
-- HTTPS/TLS for all communications
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👥 Authors
-
-- Nageswar Sahoo - Initial work and maintenance
-
-## 🙏 Acknowledgments
-
-- Google Cloud Platform
-- Telegram Bot API
-- FastAPI community
-- Python async/await ecosystem
