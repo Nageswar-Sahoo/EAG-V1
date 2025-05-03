@@ -14,7 +14,7 @@ A Chrome extension that builds embeddings and FAISS indices for web pages, with 
 
 1. Install Python dependencies:
 ```bash
-pip install -r requirements.txt
+uv pip install .
 ```
 
 2. Set up environment variables:
