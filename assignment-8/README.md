@@ -141,27 +141,32 @@ python src/telegram_mcp_server.py
 
 ## 📝 Application logs 
 
-2025-05-02 20:25:21,691 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/getUpdates "HTTP/1.1 200 OK"
 
-<h4> 2025-05-02 20:25:21,692 - INFO - [__main__] - [2025-05-02 20:25:21] Received message from nageswar in Private Chat (1301883617): Find the Current Point Standings of F1 Racers in 2024 using web search </h4>
+  2025-05-03 08:34:07,660 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/getUpdates "HTTP/1.1 200 OK"
+2025-05-03 08:34:10,391 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/getUpdates "HTTP/1.1 200 OK"
 
-2025-05-02 20:25:21,692 - INFO - [__main__] - [2025-05-02 20:25:21] Showing typing indicator...
-2025-05-02 20:25:23,310 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/sendChatAction "HTTP/1.1 200 OK"
-2025-05-02 20:25:23,312 - INFO - [__main__] - [2025-05-02 20:25:23] Starting message processing...
-2025-05-02 20:25:23,312 - INFO - [__main__] - [2025-05-02 20:25:23] Starting agent processing for message: Find the Current Point Standings of F1 Racers in 2024 using web search
-2025-05-02 20:25:23,312 - INFO - [agent] - [2025-05-02 20:25:23] Initializing Agent...
-2025-05-02 20:25:23,315 - INFO - [agent] - [2025-05-02 20:25:23] Agent initialized with empty tool list
-2025-05-02 20:25:23,315 - INFO - [__main__] - [2025-05-02 20:25:23] calling agent main function...
-2025-05-02 20:25:23,315 - INFO - [agent] - [2025-05-02 20:25:23] Starting agent...
-2025-05-02 20:25:23,316 - INFO - [agent] - [2025-05-02 20:25:23] Current working directory: /Users/nageswar.sahoo/Desktop/ERAG/EAG-V1/assignment-8
-2025-05-02 20:25:23,316 - INFO - [agent] - [2025-05-02 20:25:23] Connecting to MCP server...
-2025-05-02 20:25:23,324 - INFO - [agent] - [2025-05-02 20:25:23] Connection established, creating session...
-2025-05-02 20:25:23,324 - INFO - [agent] - [2025-05-02 20:25:23] Session created, initializing...
-2025-05-02 20:25:24,436 - INFO - [agent] - [2025-05-02 20:25:24] MCP session initialized
-2025-05-02 20:25:24,436 - INFO - [agent] - [2025-05-02 20:25:24] Requesting tool list...
-2025-05-02 20:25:24,441 - INFO - [agent] - [2025-05-02 20:25:24] tool list received...
-2025-05-02 20:25:24,441 - INFO - [agent] - [2025-05-02 20:25:24] 20 tools loaded
-2025-05-02 20:25:24,441 - INFO - [agent] - [2025-05-02 20:25:24] Available tools:
+<h4>2025-05-03 08:34:10,392 - INFO - [__main__] - [2025-05-03 08:34:10] Received message from nageswar in Private Chat (1301883617): Find the Current Point Standings of F1 Racers in 2024 using web search</h4>
+
+2025-05-03 08:34:10,392 - INFO - [__main__] - [2025-05-03 08:34:10] Showing typing indicator...
+2025-05-03 08:34:11,015 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/sendChatAction "HTTP/1.1 200 OK"
+2025-05-03 08:34:11,015 - INFO - [__main__] - [2025-05-03 08:34:11] Starting message processing...
+
+<h4>2025-05-03 08:34:11,015 - INFO - [__main__] - [2025-05-03 08:34:11] Starting agent processing for message: Find the Current Point Standings of F1 Racers in 2024 using web search</h4>
+
+2025-05-03 08:34:11,016 - INFO - [agent] - Initializing Agent...
+2025-05-03 08:34:11,019 - INFO - [__main__] - [2025-05-03 08:34:11] calling agent main function...
+2025-05-03 08:34:11,019 - INFO - [agent] - Starting agent...
+2025-05-03 08:34:11,019 - INFO - [agent] - Current working directory: /Users/nageswar.sahoo/Desktop/ERAG/EAG-V1/assignment-8
+2025-05-03 08:34:11,019 - INFO - [agent] - Connecting to MCP server...
+2025-05-03 08:34:11,026 - INFO - [agent] - Connection established, creating session...
+2025-05-03 08:34:11,027 - INFO - [agent] - Session created, initializing...
+2025-05-03 08:34:12,070 - INFO - [agent] - MCP session initialized
+2025-05-03 08:34:12,070 - INFO - [agent] - Requesting tool list...
+2025-05-03 08:34:12,070 - INFO - [agent] - Attempt 1 of 3 for function list_tools
+2025-05-03 08:34:12,075 - INFO - [agent] - Success on attempt 1
+2025-05-03 08:34:12,075 - INFO - [agent] - tool list received...
+2025-05-03 08:34:12,075 - INFO - [agent] - 20 tools loaded
+2025-05-03 08:34:12,075 - INFO - [agent] - Available tools:
 - search_documents: Search for relevant content from uploaded documents.
 - add: 
 - sqrt: Square root of a number
@@ -182,41 +187,90 @@ python src/telegram_mcp_server.py
 - int_list_to_exponential_sum: Return sum of exponentials of numbers in a list
 - fibonacci_numbers: Return the first n Fibonacci Numbers
 - search_web: Search the web for real-time content using Tavily API. You can do search for Weather report or any other content.
-2025-05-02 20:25:24,442 - INFO - [agent] - [2025-05-02 20:25:24] Step 1 started
-2025-05-02 20:25:24,442 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
-2025-05-02 20:25:27,185 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
-2025-05-02 20:25:27,185 - INFO - [google_genai.models] - AFC remote call 1 is done.
-  
-<h4> 2025-05-02 20:25:27,186 - INFO - [agent] - [2025-05-02 20:25:27] Intent: Find the current Formula 1 (F1) racer standings for the 2024 season., Tool hint: search_web </h4>
+2025-05-03 08:34:12,075 - INFO - [agent] - Step 1 started
+2025-05-03 08:34:12,075 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
+2025-05-03 08:34:13,718 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-05-03 08:34:13,719 - INFO - [google_genai.models] - AFC remote call 1 is done.
+2025-05-03 08:34:13,720 - INFO - [agent] - Intent: Find the current standings (point rankings) of Formula 1 racers for the 2024 season., Tool hint: search_documents
+2025-05-03 08:34:14,310 - INFO - [agent] - Retrieved 0 relevant memories
+2025-05-03 08:34:14,310 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
+2025-05-03 08:34:16,376 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-05-03 08:34:16,379 - INFO - [google_genai.models] - AFC remote call 1 is done.
 
-2025-05-02 20:25:27,772 - INFO - [agent] - [2025-05-02 20:25:27] Retrieved 0 relevant memories
-2025-05-02 20:25:27,772 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
-2025-05-02 20:25:29,974 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
-2025-05-02 20:25:29,975 - INFO - [google_genai.models] - AFC remote call 1 is done.
+<h4>2025-05-03 08:34:16,380 - INFO - [agent] - Plan generated: FUNCTION_CALL: search_web|query="F1 2024 current driver standings"</h4>
 
-<h4> 2025-05-02 20:25:29,975 - INFO - [agent] - [2025-05-02 20:25:29] Plan generated: FUNCTION_CALL: search_web|query="F1 racer standings 2024" </h4>
+2025-05-03 08:34:16,380 - INFO - [agent] - Attempt 1 of 3 for function execute_tool
+2025-05-03 08:34:20,537 - INFO - [agent] - Success on attempt 1
 
-2025-05-02 20:25:32,972 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/getUpdates "HTTP/1.1 200 OK"
+<h4>2025-05-03 08:34:20,537 - INFO - [agent] - search_web returned: ["Here's what I found:\n\n1. 2024 DRIVER STANDINGS - F1\n   https://www.formula1.com/en/results/driver-standings\n   Pos | Driver | Nationality | Car | Pts\n1 | MaxVerstappenVER | NED | Red Bull Racing Honda RBPT | 437\n2 | LandoNorrisNOR | GBR | McLaren Mercedes | 374\n3 | CharlesLeclercLEC | MON | Ferrari | 356\n4 | O...\n\n2. Formula 1 2024 results and standings for top drivers and teams\n   https://www.motorsport.com/f1/standings/2024/\n   21 | L. LawsonRacing Bulls | 4 | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | 2 | - | 2 | - | - | -\n22 | V. BottasSauber |  | - | - | - | - | - | - | - | - | - | - | - | - |...\n\n3. 2024 Formula One World Championship - Wikipedia\n   https://en.wikipedia.org/wiki/2024_Formula_One_World_Championship\n   Constructor | No. | Driver | Rounds\nAlpine-Renault | 61 | Jack Doohan | 9, 12\nAston MartinAramco-Mercedes | 34 | Felipe Drugovich | 20, 24\nFerrari | 3839 | Oliver BearmanArthur Leclerc | 2024\nHaas-Fer...\n\n4. 2024 - STATS F1\n   https://www.statsf1.com/en/2024.aspx\n   21. | L. LAWSON |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 2 | - | 2 | - | - | - | 4.00\n22. | V. BOTTAS | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | -...\n\n"]</h4>
 
-<h4>  2025-05-02 20:25:34,238 - INFO - [agent] - [2025-05-02 20:25:34] search_web returned: ["Here's what I found:\n\n1. 2024 F1 Driver Standings - GPFans\n   https://www.gpfans.com/en/f1-standings/2024/\n   2024 F1 Driver Standings\nF1 Drivers F1 Constructors\nSeason  \n| Pos | Driver | Team | PTS. |\n| --- | --- | --- | --- |\n| 01 | \nMax VERSTAPPEN\n| Red Bull Racing | 437 |\n| 02 | \nLando NORRIS\n| McLaren | ...\n\n2. Formula 1 2024 results and standings for top drivers and teams\n   https://www.motorsport.com/f1/standings/2024/\n   | 1 |   M. Verstappen Red Bull Racing | 437 | 26/1 | 25/1 | - | 26/1 | 33 | 26 | 25/1 | 8/6 | 25/1 | 25/1 | 18 | 18/2 | 10/5 | 12/4 | 18/2 | 8/6 | 10/5 | 18/2 | 23 | 8/6 | 31 | 10/5 | 26 | 8/6 |\n| 2 |...\n\n3. 2024 - STATS F1\n   https://www.statsf1.com/en/2024.aspx\n   21. | L. LAWSON |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | 2 | - | 2 | - | - | - | 4.00\n22. | V. BOTTAS | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | - | -...\n\n4. 2024 F1 standings | GRR - Goodwood\n   https://www.goodwood.com/grr/f1/2024-f1-standings/\n   2024 F1 drivers' standings ; 3. Charles Leclerc. Ferrari ; 4. Oscar Piastri. McLaren ; 5. Carlos Sainz Jr. Ferrari ; 6. George Russell. Mercedes-AMG....\n\n5. 2024 Formula One World Championship - Wikipedia\n   https://en.wikipedia.org/wiki/2024_Formula_One_World_Championship\n   F1 TeamHaas-FerrariVF-24[13]Ferrari 066/10[14][15]205027\xa0Kevin Magnussen\xa0Oliver Bearman\xa0Nico Hülkenberg1–16, 18–24[b]17, 21All\xa0McLaren Formula 1 TeamMcLaren-MercedesMCL38[17]Mercedes-AMG F1 M15[7][18]...\n\n"] <h4> 
-   
-2025-05-02 20:25:34,340 - INFO - [agent] - [2025-05-02 20:25:34] Step 2 started
-2025-05-02 20:25:34,340 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
-2025-05-02 20:25:36,929 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
-2025-05-02 20:25:36,932 - INFO - [google_genai.models] - AFC remote call 1 is done.
-2025-05-02 20:25:36,932 - INFO - [agent] - [2025-05-02 20:25:36] Intent: The user is trying to find the current point standings for F1 racers in the 2024 season using web search and has already performed an initial search., Tool hint: search_documents
-2025-05-02 20:25:37,025 - INFO - [agent] - [2025-05-02 20:25:37] Retrieved 1 relevant memories
-2025-05-02 20:25:37,026 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
-2025-05-02 20:25:39,662 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
-2025-05-02 20:25:39,663 - INFO - [google_genai.models] - AFC remote call 1 is done.
+2025-05-03 08:34:20,628 - INFO - [agent] - Step 2 started
+2025-05-03 08:34:20,628 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
+2025-05-03 08:34:23,159 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-05-03 08:34:23,160 - INFO - [google_genai.models] - AFC remote call 1 is done.
+2025-05-03 08:34:23,161 - INFO - [agent] - Intent: The user wants to find the current standings of Formula 1 racers in the 2024 season and has been provided with a few initial search results. The next step depends on whether the provided results fully satisfy the user's request. They probably want to see a full and up-to-date list., Tool hint: check_completeness
+2025-05-03 08:34:23,242 - INFO - [agent] - Retrieved 1 relevant memories
+2025-05-03 08:34:23,243 - INFO - [google_genai.models] - AFC is enabled with max remote calls: 10.
+2025-05-03 08:34:24,847 - INFO - [httpx] - HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent "HTTP/1.1 200 OK"
+2025-05-03 08:34:24,848 - INFO - [google_genai.models] - AFC remote call 1 is done.
 
-<h4>  2025-05-02 20:25:39,663 - INFO - [agent] - [2025-05-02 20:25:39] Plan generated: FINAL_ANSWER: [According to the search results, Max Verstappen (Red Bull Racing) is currently leading the 2024 F1 Driver Standings with 437 points. Lando Norris (McLaren) is also mentioned, and further standings information for other drivers like Charles Leclerc, Oscar Piastri, Carlos Sainz Jr., and George Russell can be found in the provided links.] <h4> 
+<h4> 2025-05-03 08:34:24,848 - INFO - [agent] - Plan generated: FINAL_ANSWER: [According to the search results, the top 3 drivers in the 2024 F1 standings are: 1. Max Verstappen (437 points), 2. Lando Norris (374 points), 3. Charles Leclerc (356 points).] </h4>
 
-<h4> 2025-05-02 20:25:39,663 - INFO - [agent] - [2025-05-02 20:25:39] ✅ FINAL RESULT: [According to the search results, Max Verstappen (Red Bull Racing) is currently leading the 2024 F1 Driver Standings with 437 points. Lando Norris (McLaren) is also mentioned, and further standings information for other drivers like Charles Leclerc, Oscar Piastri, Carlos Sainz Jr., and George Russell can be found in the provided links.] </h4>
-2025-05-02 20:25:43,134 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/getUpdates "HTTP/1.1 200 OK"
+<h4>2025-05-03 08:34:24,848 - INFO - [agent] - ✅ FINAL RESULT: [According to the search results, the top 3 drivers in the 2024 F1 standings are: 1. Max Verstappen (437 points), 2. Lando Norris (374 points), 3. Charles Leclerc (356 points).]</h4>
 
-<h4> 2025-05-02 20:25:48,525 - INFO - [__main__] - [2025-05-02 20:25:48] Agent processing complete. Result: Your result has been stored in Google Sheets and an email notification has been sent. </h4>
+<h4>2025-05-03 08:34:24,848 - INFO - [agent] - Connecting to Sheets MCP at http://localhost:8051/sse
+<h4>2025-05-03 08:34:24,848 - INFO - [mcp.client.sse] - Connecting to SSE endpoint: http://localhost:8051/sse
+2025-05-03 08:34:24,864 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/getUpdates "HTTP/1.1 200 OK"
+2025-05-03 08:34:24,869 - INFO - [httpx] - HTTP Request: GET http://localhost:8051/sse "HTTP/1.1 200 OK"
+2025-05-03 08:34:24,869 - INFO - [mcp.client.sse] - Received endpoint URL: http://localhost:8051/messages/?session_id=2ef77b9cbcf44e13a213345b2ae66b5c
+2025-05-03 08:34:24,869 - INFO - [mcp.client.sse] - Starting post writer with endpoint URL: http://localhost:8051/messages/?session_id=2ef77b9cbcf44e13a213345b2ae66b5c
+<h4>2025-05-03 08:34:24,870 - INFO - [agent] - SSE client for Sheets MCP established</h4>
+<h4>2025-05-03 08:34:24,870 - INFO - [agent] - ClientSession for Sheets MCP created</h4>
+<h4>2025-05-03 08:34:24,872 - INFO - [httpx] - HTTP Request: POST http://localhost:8051/messages/?session_id=2ef77b9cbcf44e13a213345b2ae66b5c "HTTP/1.1 202 Accepted"</h4>
+<h4>2025-05-03 08:34:24,873 - INFO - [agent] - Sheets MCP session initialized</h4>
+<h4>2025-05-03 08:34:24,873 - INFO - [agent] - Fetching available Sheets tools...</h4>
+2025-05-03 08:34:24,875 - INFO - [httpx] - HTTP Request: POST http://localhost:8051/messages/?session_id=2ef77b9cbcf44e13a213345b2ae66b5c "HTTP/1.1 202 Accepted"
+2025-05-03 08:34:24,876 - INFO - [httpx] - HTTP Request: POST http://localhost:8051/messages/?session_id=2ef77b9cbcf44e13a213345b2ae66b5c "HTTP/1.1 202 Accepted"
+<h4>2025-05-03 08:34:24,878 - INFO - [agent] - Available Sheets tools:</h4>
+<h4>2025-05-03 08:34:24,878 - INFO - [agent] -   - process_result: Store result in Google Sheets and return shareable link</h4>
+    
+    Args:
+        result: Dictionary containing the result data to store
+    
+    Returns:
+        Dictionary containing status and spreadsheet link
+    
 
-2025-05-02 20:25:48,525 - INFO - [__main__] - [2025-05-02 20:25:48] Sending response to user...
-2025-05-02 20:25:49,238 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/sendMessage "HTTP/1.1 200 OK"
+2025-05-03 08:34:24,878 - INFO - [agent] - Storing result in Sheets...
+2025-05-03 08:34:24,879 - INFO - [httpx] - HTTP Request: POST http://localhost:8051/messages/?session_id=2ef77b9cbcf44e13a213345b2ae66b5c "HTTP/1.1 202 Accepted"
+<h4>2025-05-03 08:34:28,001 - INFO - [agent] - Sheets storage result: meta=None content=[TextContent(type='text', text='{"status": "success", "spreadsheet_link": "https://docs.google.com/spreadsheets/d/17vO7v3hseohWzZgbpmsFY0Y9PQztrDX2lTQl9OmIsNA/edit?usp=drivesdk", "spreadsheet_id": "17vO7v3hseohWzZgbpmsFY0Y9PQztrDX2lTQl9OmIsNA"}', annotations=None)] isError=False
+<h4>2025-05-03 08:34:28,001 - INFO - [agent] - Connecting to Email MCP at http://localhost:8052/sse</h4>
+<h4>2025-05-03 08:34:28,001 - INFO - [mcp.client.sse] - Connecting to SSE endpoint: http://localhost:8052/sse</h4>
+<h4>2025-05-03 08:34:28,022 - INFO - [httpx] - HTTP Request: GET http://localhost:8052/sse "HTTP/1.1 200 OK"</h4>
+2025-05-03 08:34:28,023 - INFO - [mcp.client.sse] - Received endpoint URL: http://localhost:8052/messages/?session_id=6abd12e821bf40a18909a9823f7606cd
+2025-05-03 08:34:28,023 - INFO - [mcp.client.sse] - Starting post writer with endpoint URL: http://localhost:8052/messages/?session_id=6abd12e821bf40a18909a9823f7606cd</h4>
+<h4>2025-05-03 08:34:28,023 - INFO - [agent] - SSE client for Email MCP established</h4>
+<h4>2025-05-03 08:34:28,023 - INFO - [agent] - ClientSession for Email MCP created</h4>
+<h4>2025-05-03 08:34:28,026 - INFO - [httpx] - HTTP Request: POST http://localhost:8052/messages/?session_id=6abd12e821bf40a18909a9823f7606cd "HTTP/1.1 202 Accepted"</h4>
+<h4>2025-05-03 08:34:28,027 - INFO - [agent] - Email MCP session initialized</h4>
+<h4>2025-05-03 08:34:28,027 - INFO - [agent] - Fetching available Email tools...</h4>
+2025-05-03 08:34:28,028 - INFO - [httpx] - HTTP Request: POST http://localhost:8052/messages/?session_id=6abd12e821bf40a18909a9823f7606cd "HTTP/1.1 202 Accepted"
+2025-05-03 08:34:28,029 - INFO - [httpx] - HTTP Request: POST http://localhost:8052/messages/?session_id=6abd12e821bf40a18909a9823f7606cd "HTTP/1.1 202 Accepted"
+2025-05-03 08:34:28,031 - INFO - [agent] - Available Email tools:
+<h4>2025-05-03 08:34:28,031 - INFO - [agent] -   - send_email: Send email with the Google Sheets result</h4>
+    
+    Args:
+        recipient_email: Email address of the recipient
+        subject: Email subject line (optional)
+        content: Dictionary containing email content (optional)
+    
+    Returns:
+        Dictionary containing status and message
+    
+2025-05-03 08:34:28,031 - INFO - [agent] - Preparing email notification...
+<h4>2025-05-03 08:34:28,032 - INFO - [httpx] - HTTP Request: POST http://localhost:8052/messages/?session_id=6abd12e821bf40a18909a9823f7606cd "HTTP/1.1 202 Accepted"</h4>
+<h4>2025-05-03 08:34:32,185 - INFO - [agent] - Email notification result: meta=None content=[TextContent(type='text', text='{"status": "success", "message": "Email sent successfully to tech.nageswar@gmail.com"}', annotations=None)] isError=False</h4>
+<h4>2025-05-03 08:34:32,192 - INFO - [__main__] - [2025-05-03 08:34:32] Agent processing complete. Result: Your result has been stored in Google Sheets and an email notification has been sent.</h4>
+2025-05-03 08:34:32,192 - INFO - [__main__] - [2025-05-03 08:34:32] Sending response to user...
+2025-05-03 08:34:32,882 - INFO - [httpx] - HTTP Request: POST https://api.telegram.org/bot7544695746:AAHlffPwULw0HgXrjKxOTAQNY4DLJw3fUzI/sendMessage "HTTP/1.1 200 OK"
 
