@@ -1,6 +1,6 @@
 # Web Content Search Extension
 
-A Chrome extension that builds embeddings and FAISS indices for web pages, with search functionality and content highlighting.
+A Chrome extension that builds embeddings and FAISS indices for web pages, with search functionality.
 
 ## Features
 
