@@ -1,17 +1,12 @@
 import os
 from mcp.server.fastmcp import FastMCP
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
-from telegram import Update
 import asyncio
 from dotenv import load_dotenv
 import logging
 import threading
-import uvicorn
-from fastapi import FastAPI
 import nest_asyncio
 from agent import Agent
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
 import datetime
 
 # Enable nested event loops
@@ -41,15 +36,12 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 if not CHAT_ID:
     logger.warning("TELEGRAM_CHAT_ID not found in environment variables! Will accept messages from any chat.")
 
-# Create FastAPI app for MCP
-app = FastAPI()
 
 # Create an MCP server
 mcp = FastMCP(
     name="TelegramBot",
     host="0.0.0.0",
     port=8050,
-    app=app  # Pass the FastAPI app to MCP
 )
 
 # Store messages for SSE
@@ -81,43 +73,6 @@ async def process_with_agent(message: str) -> str:
         result = await agent.main(message)
         log_with_timestamp(f"Agent processing complete. Result: {result[:100]}...")
         return result
-
-        
-        # # Set up MCP server parameters
-        # server_params = StdioServerParameters(
-        #     command="python",
-        #     args=["example3.py"],
-        #     cwd="/Users/nageswar.sahoo/Desktop/ERAG/EAG-V1/assignment-8/src/"
-        # )
-
-        # log_with_timestamp("Connecting to MCP server...")
-        # async with stdio_client(server_params) as (read, write):
-        #     async with ClientSession(read, write) as session:
-        #         log_with_timestamp("Initializing MCP session...")
-        #         await session.initialize()
-                
-        #         # Initialize agent
-        #         log_with_timestamp("Initializing Agent...")
-        #         agent = Agent()
-                
-        #         # Get available tools
-        #         # log_with_timestamp("Fetching available tools...")
-        #         # tools_result = await session.list_tools()
-        #         # tools = tools_result.tools
-                
-        #         # # Register tools with agent
-        #         # log_with_timestamp(f"Registering {len(tools)} tools with agent...")
-        #         # for tool in tools:
-        #         #     agent.register_tool(tool)
-        #         #     log_with_timestamp(f"Registered tool: {tool.name}", "DEBUG")
-                
-        #         # # Process the message
-        #         # log_with_timestamp("Processing message through agent pipeline...")
-        #         log_with_timestamp("calling agent main function...")
-
-        #         result = await agent.main(message)
-        #         log_with_timestamp(f"Agent processing complete. Result: {result[:100]}...")
-        #         return result
                 
     except Exception as e:
         log_with_timestamp(f"Error in agent processing: {str(e)}", "ERROR")
@@ -184,7 +139,7 @@ def run_mcp_server():
     """Run MCP server using uvicorn."""
     try:
         logger.info("Starting MCP server on port 8050")
-        uvicorn.run(app, host="0.0.0.0", port=8050)
+        mcp.run(transport="sse")
     except Exception as e:
         logger.error(f"Error in MCP server: {str(e)}")
 
